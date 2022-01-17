@@ -1,0 +1,19 @@
+parameters:
+    excludes_analyse:
+    paths:
+        - src
+    level: 8
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        -
+            message: '#Parameter \#1 \$json of function json_decode expects string, string\|false given.*#'
+            count: 3
+            path: ./src/Context/ApiContext.php
+        -
+            message: '#Call to an undefined method Symfony\\Component\\HttpKernel\\KernelInterface::terminate\(\).*#'
+            count: 1
+            path: ./src/Context/ApiContext.php
+        -
+            message: '#Parameter \#3 \$actualJSON of method BehatApiContext\\Context\\ApiContext::compareStructureResponse\(\) expects string, string\|false given.*#'
+            count: 1
+            path: ./src/Context/ApiContext.php
