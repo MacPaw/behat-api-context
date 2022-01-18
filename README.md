@@ -9,37 +9,62 @@ Behat Api Context Bundle
 Installation
 ============
 
-Step 1: Install Bundle
+Step 1: Download the Bundle
 ----------------------------------
 Open a command console, enter your project directory and execute:
+
+###  Applications that use Symfony Flex [in progress](https://github.com/MacPaw/BehatRedisContext/issues/2)
 
 ```console
 $ composer require --dev macpaw/behat-api-context
 ```
 
-Step 2: Configure Messenger
-=============
-Copying `config/packages/dev/messenger.yaml` and pasting that into `config/packages/test/`. This gives us messenger configuration that will only be used in the test environment. Uncomment the code, and replace sync with in-memory. Do that for both of the transports.
+### Applications that don't use Symfony Flex
 
-```yaml
-framework:
-    messenger:
-        transports:
-            async: 'in-memory://'
-            async_priority_high: 'in-memory://'
-            ...
-...
+Open a command console, enter your project directory and execute the
+following command to download the latest stable version of this bundle:
+
+```console
+$ composer require --dev macpaw/behat-api-context
 ```
 
+This command requires you to have Composer installed globally, as explained
+in the [installation chapter](https://getcomposer.org/doc/00-intro.md)
+of the Composer documentation.
 
-Step 3: Configure Behat
+
+Then, enable the bundle by adding it to the list of registered bundles
+in the `app/AppKernel.php` file of your project:
+
+```php
+<?php
+// app/AppKernel.php
+
+// ...
+class AppKernel extends Kernel
+{
+    public function registerBundles()
+    {
+        $bundles = array(
+            // ...
+            BehatApiContext\BehatApiContextBundle::class => ['test' => true],
+        );
+
+        // ...
+    }
+
+    // ...
+}
+```
+
+Step 2: Configure Behat
 =============
 Go to `behat.yml`
 
 ```yaml
 ...
   contexts:
-    - BehatMessengerContext\Context\MessengerContext
+    - BehatApiContext\Context\ApiContext
 ...
 ```
 

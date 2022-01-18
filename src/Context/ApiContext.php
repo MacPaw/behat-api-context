@@ -65,7 +65,7 @@ class ApiContext implements Context
     }
 
     /**
-     * @Given the "([^"]*)" request header contains "([^"]*)"
+     * @Given the :headerName request header contains :value
      */
     public function theRequestHeaderContains(string $header, string $value): void
     {
@@ -81,7 +81,7 @@ class ApiContext implements Context
     }
 
     /**
-     * @Given The request contains params:
+     * @Given the request contains params:
      */
     public function theRequestContainsParams(PyStringNode $params): void
     {
@@ -90,7 +90,7 @@ class ApiContext implements Context
     }
 
     /**
-     * @Given The request param "([^"]*)" contains saved value "([^"]*)"
+     * @Given the request param :paramName contains saved value :savedValueKey
      */
     public function theRequestParamContainsSavedValue(string $param, string $savedValueKey): void
     {
@@ -98,7 +98,7 @@ class ApiContext implements Context
     }
 
     /**
-     * @Given I send "([^"]*)" request to "([^"]*)" route
+     * @When I send :method request to :route route
      */
     public function iSendRequestToRoute(
         string $method,
@@ -166,7 +166,7 @@ class ApiContext implements Context
     }
 
     /**
-     * @Then Response status code should be (\d+)
+     * @Then response status code should be :httpStatus
      */
     public function responseStatusCodeShouldBe(string $httpStatus): void
     {
@@ -187,7 +187,7 @@ class ApiContext implements Context
     }
 
     /**
-     * @Then Response is JSON
+     * @Then response is JSON
      */
     public function responseIsJson(): void
     {
@@ -203,7 +203,7 @@ class ApiContext implements Context
     }
 
     /**
-     * @Then Response should be empty
+     * @Then response should be empty
      */
     public function responseEmpty(): void
     {
@@ -218,6 +218,8 @@ class ApiContext implements Context
 
     /**
      * @param PyStringNode $string
+     *
+     * @Then response should be JSON:
      */
     public function responseShouldBeJson(PyStringNode $string): void
     {
@@ -237,7 +239,7 @@ class ApiContext implements Context
     }
 
     /**
-     * @When I save "([^"]*)" param from json response as "([^"]*)"
+     * @When I save :paramPath param from json response as :valueKey
      */
     public function iGetParamFromJsonResponse(string $paramPath, string $valueKey): void
     {
@@ -260,7 +262,9 @@ class ApiContext implements Context
     }
 
     /**
-     * @Then Response should be JSON with variable fields "([^"]*)":
+     * phpcs:disable SlevomatCodingStandard.Namespaces.UnusedUses.MismatchingCaseSensitivity
+     * @Then response should be JSON with variable fields :variableFields:
+     * phpcs:enable
      */
     public function responseShouldBeJsonWithVariableFields(string $variableFields, PyStringNode $string): void
     {

@@ -30,6 +30,7 @@
         </properties>
     </rule>
     <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
+        <exclude name="SlevomatCodingStandard.Namespaces.UnusedUses.MismatchingCaseSensitivity"/>
         <properties>
             <property name="searchAnnotations" value="true" />
         </properties>
