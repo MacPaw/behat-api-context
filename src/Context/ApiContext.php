@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BehatApiContext\Context;
 
-use _PHPStan_76800bfb5\Nette\Neon\Exception;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use RuntimeException;
@@ -34,12 +33,12 @@ class ApiContext implements Context
     private array $serverParams = [];
 
     /**
-     * @var array<string,string> $requestParams
+     * @var array<mixed> $requestParams
      */
     private array $requestParams = [];
 
     /**
-     * @var array<string,string> $savedValues
+     * @var array<mixed> $savedValues
      */
     private array $savedValues = [];
 
@@ -85,7 +84,7 @@ class ApiContext implements Context
      */
     public function theRequestContainsParams(PyStringNode $params): void
     {
-        $newRequestParams = json_decode(trim($params->getRaw()), true, 512, JSON_THROW_ON_ERROR);
+        $newRequestParams = (array) json_decode(trim($params->getRaw()), true, 512, JSON_THROW_ON_ERROR);
         $this->requestParams = array_merge($this->requestParams, $newRequestParams);
     }
 
@@ -171,7 +170,7 @@ class ApiContext implements Context
     public function responseStatusCodeShouldBe(string $httpStatus): void
     {
         if ($this->response === null) {
-            throw new Exception();
+            throw new RuntimeException('Response is null.');
         }
 
         if ((string) $this->response->getStatusCode() !== $httpStatus) {
@@ -192,7 +191,7 @@ class ApiContext implements Context
     public function responseIsJson(): void
     {
         if ($this->response === null) {
-            throw new Exception();
+            throw new RuntimeException('Response is null.');
         }
 
         $data = json_decode($this->response->getContent(), true, 512, JSON_THROW_ON_ERROR);
@@ -208,7 +207,7 @@ class ApiContext implements Context
     public function responseEmpty(): void
     {
         if ($this->response === null) {
-            throw new Exception();
+            throw new RuntimeException('Response is null.');
         }
 
         if (!empty($this->response->getContent())) {
@@ -224,7 +223,7 @@ class ApiContext implements Context
     public function responseShouldBeJson(PyStringNode $string): void
     {
         if ($this->response === null) {
-            throw new Exception();
+            throw new RuntimeException('Response is null.');
         }
 
         $expectedResponse = json_decode(trim($string->getRaw()), true, 512, JSON_THROW_ON_ERROR);
@@ -244,7 +243,7 @@ class ApiContext implements Context
     public function iGetParamFromJsonResponse(string $paramPath, string $valueKey): void
     {
         if ($this->response === null) {
-            throw new Exception();
+            throw new RuntimeException('Response is null.');
         }
 
         $actualResponse = json_decode($this->response->getContent(), true, 512, JSON_THROW_ON_ERROR);
@@ -269,7 +268,7 @@ class ApiContext implements Context
     public function responseShouldBeJsonWithVariableFields(string $variableFields, PyStringNode $string): void
     {
         if ($this->response === null) {
-            throw new Exception();
+            throw new RuntimeException('Response is null.');
         }
 
         $this->compareStructureResponse($variableFields, $string, $this->response->getContent());
@@ -281,8 +280,8 @@ class ApiContext implements Context
             throw new RuntimeException('Response is not JSON');
         }
 
-        $expectedResponse = json_decode(trim($string->getRaw()), true);
-        $actualResponse = json_decode($actualJSON, true);
+        $expectedResponse = (array) json_decode(trim($string->getRaw()), true);
+        $actualResponse = (array) json_decode($actualJSON, true);
         $variableFields = $variableFields ? array_map('trim', explode(',', $variableFields)) : [];
 
         if (!$this->similarArrayManager->isArraysSimilar($expectedResponse, $actualResponse, $variableFields)) {
