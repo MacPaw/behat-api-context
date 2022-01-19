@@ -37,7 +37,7 @@ class ArrayManagerTest extends TestCase
         self::assertSame($resultString, $result);
     }
 
-    private function getSubstituteValuesDataProvider(): array
+    public function getSubstituteValuesDataProvider(): array
     {
         return [
             [
