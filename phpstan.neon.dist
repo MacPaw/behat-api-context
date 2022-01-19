@@ -2,8 +2,9 @@ parameters:
     excludes_analyse:
     paths:
         - src
-    level: 8
-    treatPhpDocTypesAsCertain: false
+    level: max
+    checkMissingIterableValueType: false
+    checkExplicitMixed: false
     ignoreErrors:
         -
             message: '#Parameter \#1 \$json of function json_decode expects string, string\|false given.*#'
@@ -17,3 +18,15 @@ parameters:
             message: '#Parameter \#3 \$actualJSON of method BehatApiContext\\Context\\ApiContext::compareStructureResponse\(\) expects string, string\|false given.*#'
             count: 1
             path: ./src/Context/ApiContext.php
+        -
+            message: '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeDefinition::children\(\).#'
+            count: 1
+            path: ./src/DependencyInjection
+        -
+            message: '#.*NodeParentInterface|null.*#'
+            count: 1
+            path: ./src/DependencyInjection
+        -
+            message: '#Cannot call method (.*)? on object|null.*#'
+            count: 2
+            path: ./src/Service/ResetManager/DoctrineResetManager

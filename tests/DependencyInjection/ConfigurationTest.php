@@ -2,24 +2,62 @@
 
 declare(strict_types=1);
 
-namespace DependencyInjection;
+namespace BehatApiContext\Tests\DependencyInjection;
 
 use BehatApiContext\DependencyInjection\Configuration;
+use BehatApiContext\Service\ResetManager\DoctrineResetManager;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Processor;
 
-class ConfigurationTest extends TestCase
+final class ConfigurationTest extends TestCase
 {
-    public function testConfiguration(): void
+    public function testProcessConfigurationWithEmptyConfiguration(): void
+    {
+        $expectedBundleDefaultConfig = [
+            'kernel_reset_managers' => []
+        ];
+
+        $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration([]));
+    }
+
+    public function testProcessConfigurationWithDefaultConfiguration(): void
+    {
+        $config = [
+            'behat_api_context' => [
+                'kernel_reset_managers' => []
+            ]
+        ];
+
+        $expectedBundleDefaultConfig = [
+            'kernel_reset_managers' => []
+        ];
+
+        $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration($config));
+    }
+
+    public function testProcessConfigurationWithFilledConfiguration(): void
+    {
+        $config = [
+            'behat_api_context' => [
+                'kernel_reset_managers' => [
+                    DoctrineResetManager::class
+                ]
+            ]
+        ];
+
+        $expectedBundleDefaultConfig = [
+            'kernel_reset_managers' => [
+                DoctrineResetManager::class
+            ]
+        ];
+
+        $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration($config));
+    }
+
+    private function processConfiguration(array $configuration): array
     {
         $processor = new Processor();
-        $configuration = new Configuration();
 
-        $this->assertInstanceOf(ConfigurationInterface::class, $configuration);
-
-        $configs = $processor->processConfiguration($configuration, []);
-
-        $this->assertSame([], $configs);
+        return $processor->processConfiguration(new Configuration(), $configuration);
     }
 }

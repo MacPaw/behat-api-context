@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace BehatApiContext\Context;
 
-use _PHPStan_76800bfb5\Nette\Neon\Exception;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
+use BehatApiContext\Service\StringManager;
+use BehatApiContext\Service\ResetManager\ResetManagerInterface;
 use RuntimeException;
 use SimilarArrays\SimilarArray;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,10 +19,12 @@ use Symfony\Component\Routing\RouterInterface;
 class ApiContext implements Context
 {
     private SimilarArray $similarArrayManager;
+    private StringManager $stringManager;
     private RouterInterface $router;
     private RequestStack $requestStack;
     private ?Response $response;
     private KernelInterface $kernel;
+    private array $resetManagers = [];
 
     /**
      * @var array<string,string> $headers
@@ -34,12 +37,12 @@ class ApiContext implements Context
     private array $serverParams = [];
 
     /**
-     * @var array<string,string> $requestParams
+     * @var array<mixed> $requestParams
      */
     private array $requestParams = [];
 
     /**
-     * @var array<string,string> $savedValues
+     * @var array<mixed> $savedValues
      */
     private array $savedValues = [];
 
@@ -52,6 +55,12 @@ class ApiContext implements Context
         $this->requestStack = $requestStack;
         $this->kernel = $kernel;
         $this->similarArrayManager = new SimilarArray();
+        $this->stringManager = new StringManager();
+    }
+
+    public function addKernelResetManager(ResetManagerInterface $resetManager): void
+    {
+        $this->resetManagers[] = $resetManager;
     }
 
     /**
@@ -59,9 +68,8 @@ class ApiContext implements Context
      */
     public function beforeScenario(): void
     {
-        $this->headers = [];
-        $this->serverParams = [];
         $this->savedValues = [];
+        $this->resetRequestOptions();
     }
 
     /**
@@ -69,7 +77,12 @@ class ApiContext implements Context
      */
     public function theRequestHeaderContains(string $header, string $value): void
     {
-        $this->headers[$header] = $value;
+        $processedHeader = $this->stringManager->substituteValues(
+            $this->savedValues,
+            trim($value)
+        );
+
+        $this->headers[$header] = $processedHeader;
     }
 
     /**
@@ -85,16 +98,13 @@ class ApiContext implements Context
      */
     public function theRequestContainsParams(PyStringNode $params): void
     {
-        $newRequestParams = json_decode(trim($params->getRaw()), true, 512, JSON_THROW_ON_ERROR);
-        $this->requestParams = array_merge($this->requestParams, $newRequestParams);
-    }
+        $processedParams = $this->stringManager->substituteValues(
+            $this->savedValues,
+            trim($params->getRaw())
+        );
 
-    /**
-     * @Given the request param :paramName contains saved value :savedValueKey
-     */
-    public function theRequestParamContainsSavedValue(string $param, string $savedValueKey): void
-    {
-        $this->requestParams[$param] = $this->savedValues[$savedValueKey];
+        $newRequestParams = (array) json_decode($processedParams, true, 512, JSON_THROW_ON_ERROR);
+        $this->requestParams = array_merge($this->requestParams, $newRequestParams);
     }
 
     /**
@@ -122,6 +132,8 @@ class ApiContext implements Context
         $request->server->add($this->serverParams);
 
         $this->response = $this->handleRequestWithKernel($request);
+
+        $this->resetRequestOptions();
     }
 
     private function handleRequestWithKernel(Request $request): Response
@@ -134,12 +146,13 @@ class ApiContext implements Context
         $this->requestStack->pop();
         $this->kernel->terminate($request, $response);
 
-        if (strtoupper($request->getMethod()) !== Request::METHOD_GET) {
-//            $this->kernel->resetBundles();
+        foreach ($this->resetManagers as $resetManager) {
+            if ($resetManager->needsReset($request->getMethod())) {
+                $resetManager->reset($this->kernel);
+            }
         }
 
         return $response;
-//        return new Response($response->getContent(), $response->getStatusCode(), $response->headers->all());
     }
 
     /**
@@ -170,16 +183,14 @@ class ApiContext implements Context
      */
     public function responseStatusCodeShouldBe(string $httpStatus): void
     {
-        if ($this->response === null) {
-            throw new Exception();
-        }
+        $response = $this->getResponse();
 
-        if ((string) $this->response->getStatusCode() !== $httpStatus) {
+        if ((string) $response->getStatusCode() !== $httpStatus) {
             $message = sprintf(
                 'HTTP code does not match %s (actual: %s). Response: %s',
                 $httpStatus,
-                $this->response->getStatusCode(),
-                $this->response->sendContent()
+                $response->getStatusCode(),
+                $response->sendContent()
             );
 
             throw new RuntimeException($message);
@@ -191,14 +202,11 @@ class ApiContext implements Context
      */
     public function responseIsJson(): void
     {
-        if ($this->response === null) {
-            throw new Exception();
-        }
-
-        $data = json_decode($this->response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $response = $this->getResponse();
+        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         if (empty($data)) {
-            throw new RuntimeException("Response was not JSON\n" . $this->response->getContent());
+            throw new RuntimeException("Response was not JSON\n" . $response->getContent());
         }
     }
 
@@ -207,11 +215,7 @@ class ApiContext implements Context
      */
     public function responseEmpty(): void
     {
-        if ($this->response === null) {
-            throw new Exception();
-        }
-
-        if (!empty($this->response->getContent())) {
+        if (!empty($this->getResponse()->getContent())) {
             throw new RuntimeException('Content not empty');
         }
     }
@@ -223,12 +227,8 @@ class ApiContext implements Context
      */
     public function responseShouldBeJson(PyStringNode $string): void
     {
-        if ($this->response === null) {
-            throw new Exception();
-        }
-
         $expectedResponse = json_decode(trim($string->getRaw()), true, 512, JSON_THROW_ON_ERROR);
-        $actualResponse = json_decode($this->response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $actualResponse = json_decode($this->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         if ($expectedResponse !== $actualResponse) {
             $prettyJSON = json_encode($actualResponse, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, 512);
@@ -243,11 +243,7 @@ class ApiContext implements Context
      */
     public function iGetParamFromJsonResponse(string $paramPath, string $valueKey): void
     {
-        if ($this->response === null) {
-            throw new Exception();
-        }
-
-        $actualResponse = json_decode($this->response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $actualResponse = json_decode($this->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $pathKeys = explode('.', $paramPath);
 
         foreach ($pathKeys as $key) {
@@ -268,11 +264,7 @@ class ApiContext implements Context
      */
     public function responseShouldBeJsonWithVariableFields(string $variableFields, PyStringNode $string): void
     {
-        if ($this->response === null) {
-            throw new Exception();
-        }
-
-        $this->compareStructureResponse($variableFields, $string, $this->response->getContent());
+        $this->compareStructureResponse($variableFields, $string, $this->getResponse()->getContent());
     }
 
     private function compareStructureResponse(string $variableFields, PyStringNode $string, string $actualJSON): void
@@ -281,8 +273,8 @@ class ApiContext implements Context
             throw new RuntimeException('Response is not JSON');
         }
 
-        $expectedResponse = json_decode(trim($string->getRaw()), true);
-        $actualResponse = json_decode($actualJSON, true);
+        $expectedResponse = (array) json_decode(trim($string->getRaw()), true);
+        $actualResponse = (array) json_decode($actualJSON, true);
         $variableFields = $variableFields ? array_map('trim', explode(',', $variableFields)) : [];
 
         if (!$this->similarArrayManager->isArraysSimilar($expectedResponse, $actualResponse, $variableFields)) {
@@ -294,5 +286,21 @@ class ApiContext implements Context
 
             throw new RuntimeException($message);
         }
+    }
+
+    private function resetRequestOptions(): void
+    {
+        $this->headers = [];
+        $this->serverParams = [];
+        $this->requestParams = [];
+    }
+
+    private function getResponse(): Response
+    {
+        if ($this->response === null) {
+            throw new RuntimeException('Response is null.');
+        }
+
+        return $this->response;
     }
 }
