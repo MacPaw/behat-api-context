@@ -6,7 +6,7 @@ namespace BehatApiContext\Context;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
-use BehatApiContext\Service\ArrayManager;
+use BehatApiContext\Service\StringManager;
 use BehatApiContext\Service\ResetManager\ResetManagerInterface;
 use RuntimeException;
 use SimilarArrays\SimilarArray;
@@ -19,7 +19,7 @@ use Symfony\Component\Routing\RouterInterface;
 class ApiContext implements Context
 {
     private SimilarArray $similarArrayManager;
-    private ArrayManager $arrayManager;
+    private StringManager $stringManager;
     private RouterInterface $router;
     private RequestStack $requestStack;
     private ?Response $response;
@@ -55,7 +55,7 @@ class ApiContext implements Context
         $this->requestStack = $requestStack;
         $this->kernel = $kernel;
         $this->similarArrayManager = new SimilarArray();
-        $this->arrayManager = new ArrayManager();
+        $this->stringManager = new StringManager();
     }
 
     public function addKernelResetManager(ResetManagerInterface $resetManager): void
@@ -77,7 +77,7 @@ class ApiContext implements Context
      */
     public function theRequestHeaderContains(string $header, string $value): void
     {
-        $processedHeader = $this->arrayManager->substituteValuesInString(
+        $processedHeader = $this->stringManager->substituteValues(
             $this->savedValues,
             trim($value)
         );
@@ -98,7 +98,7 @@ class ApiContext implements Context
      */
     public function theRequestContainsParams(PyStringNode $params): void
     {
-        $processedParams = $this->arrayManager->substituteValuesInString(
+        $processedParams = $this->stringManager->substituteValues(
             $this->savedValues,
             trim($params->getRaw())
         );
@@ -295,7 +295,8 @@ class ApiContext implements Context
         $this->requestParams = [];
     }
 
-    private function getResponse(): Response {
+    private function getResponse(): Response
+    {
         if ($this->response === null) {
             throw new RuntimeException('Response is null.');
         }

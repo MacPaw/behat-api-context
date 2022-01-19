@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BehatApiContext\Tests\Unit\Service;
 
-use BehatApiContext\Service\ArrayManager;
+use BehatApiContext\Service\StringManager;
 use RuntimeException;
 use PHPUnit\Framework\TestCase;
 
@@ -14,11 +14,11 @@ class ArrayManagerTest extends TestCase
     private const INITIAL_STRING = 'initialString';
     private const RESULT_STRING = 'resultString';
 
-    private ArrayManager $arrayManager;
+    private StringManager $stringManager;
 
     protected function setUp(): void
     {
-        $this->arrayManager = new ArrayManager();
+        $this->stringManager = new StringManager();
     }
 
     /**
@@ -28,12 +28,12 @@ class ArrayManagerTest extends TestCase
      *
      * @dataProvider getSubstituteValuesDataProvider
      */
-    public function testSubstituteValuesInStringSuccess(
+    public function testSubstituteValuesSuccess(
         array $substitutionValues,
         string $initialString,
         string $resultString
     ): void {
-        $result = $this->arrayManager->substituteValuesInString($substitutionValues, $initialString);
+        $result = $this->stringManager->substituteValues($substitutionValues, $initialString);
         self::assertSame($resultString, $result);
     }
 
@@ -81,23 +81,23 @@ class ArrayManagerTest extends TestCase
         ];
     }
 
-    public function testSubstituteValuesInStringKeyNotFound(): void
+    public function testSubstituteValuesKeyNotFound(): void
     {
         $substitutionValues = ['headerKey' => 'headerValue'];
         $initialString = 'I send request {{paramKey}} param and {{headerKey}} header';
 
         self::expectException(RuntimeException::class);
         self::expectExceptionMessage("Key not found");
-        $this->arrayManager->substituteValuesInString($substitutionValues, $initialString);
+        $this->stringManager->substituteValues($substitutionValues, $initialString);
     }
 
-    public function testSubstituteValuesInStringInvalidSyntax(): void
+    public function testSubstituteValuesInvalidSyntax(): void
     {
         $substitutionValues = ['headerKey' => 'headerValue'];
         $initialString = 'I send request {{headerKey header';
 
         self::expectException(RuntimeException::class);
         self::expectExceptionMessage("Invalid syntax");
-        $this->arrayManager->substituteValuesInString($substitutionValues, $initialString);
+        $this->stringManager->substituteValues($substitutionValues, $initialString);
     }
 }

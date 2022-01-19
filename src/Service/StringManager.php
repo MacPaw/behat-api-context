@@ -6,12 +6,12 @@ namespace BehatApiContext\Service;
 
 use RuntimeException;
 
-class ArrayManager
+class StringManager
 {
     private const START_SEPARATOR = "{{";
     private const END_SEPARATOR = "}}";
 
-    public function substituteValuesInString(array $substitutionArray, string $string): string
+    public function substituteValues(array $substitutionArray, string $string): string
     {
         $start = strpos($string, self::START_SEPARATOR);
 
@@ -42,6 +42,6 @@ class ArrayManager
             $end - $start + strlen(self::END_SEPARATOR)
         );
 
-        return $this->substituteValuesInString($substitutionArray, $newString);
+        return $this->substituteValues($substitutionArray, $newString);
     }
 }
