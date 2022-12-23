@@ -86,6 +86,16 @@ class ApiContext implements Context
     }
 
     /**
+     * @Given the :headerName request header contains multiline value:
+     */
+    public function theRequestHeaderContainsMultiline(string $header, PyStringNode $params): void
+    {
+        $processedParams = $this->stringManager->substituteValues($this->savedValues, trim($params->getRaw()));
+
+        $this->headers[$header] = $processedParams;
+    }
+
+    /**
      * @Given the request ip is :ip
      */
     public function theRequestIpIs(string $ip): void
