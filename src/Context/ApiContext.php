@@ -29,22 +29,22 @@ class ApiContext implements Context
     /**
      * @var array<string,string> $headers
      */
-    private array $headers = [];
+    protected array $headers = [];
 
     /**
      * @var array<string,string> $serverParams
      */
-    private array $serverParams = [];
+    protected array $serverParams = [];
 
     /**
      * @var array<mixed> $requestParams
      */
-    private array $requestParams = [];
+    protected array $requestParams = [];
 
     /**
      * @var array<mixed> $savedValues
      */
-    private array $savedValues = [];
+    protected array $savedValues = [];
 
     public function __construct(
         RouterInterface $router,
@@ -115,6 +115,7 @@ class ApiContext implements Context
 
         $newRequestParams = (array) json_decode($processedParams, true, 512, JSON_THROW_ON_ERROR);
         $this->requestParams = array_merge($this->requestParams, $newRequestParams);
+        $this->savedValues = array_merge($this->savedValues, $newRequestParams);
     }
 
     /**
@@ -277,7 +278,7 @@ class ApiContext implements Context
         $this->compareStructureResponse($variableFields, $string, $this->getResponse()->getContent());
     }
 
-    private function compareStructureResponse(string $variableFields, PyStringNode $string, string $actualJSON): void
+    protected function compareStructureResponse(string $variableFields, PyStringNode $string, string $actualJSON): void
     {
         if ($actualJSON === '') {
             throw new RuntimeException('Response is not JSON');
@@ -305,7 +306,7 @@ class ApiContext implements Context
         $this->requestParams = [];
     }
 
-    private function getResponse(): Response
+    protected function getResponse(): Response
     {
         if ($this->response === null) {
             throw new RuntimeException('Response is null.');
