@@ -313,7 +313,7 @@ class ApiContext implements Context
                 continue;
             }
 
-            $pregMatchValue = preg_match('/^<.*>$/', $value);
+            $pregMatchValue = preg_match('/^<.*>$/', trim($value));
 
             if ($pregMatchValue === 0 || $pregMatchValue === false) {
                 continue;
