@@ -27,6 +27,10 @@ parameters:
             count: 1
             path: ./src/DependencyInjection
         -
-            message: '#Cannot call method (.*)? on object|null.*#'
-            count: 2
+            message: '#Call to an undefined method object::clear().*#'
+            count: 1
+            path: ./src/Service/ResetManager/DoctrineResetManager
+        -
+            message: '#Call to an undefined method object::getConnection().*#'
+            count: 1
             path: ./src/Service/ResetManager/DoctrineResetManager
