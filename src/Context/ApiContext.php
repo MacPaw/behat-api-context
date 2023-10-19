@@ -301,14 +301,7 @@ class ApiContext implements Context
         }
     }
 
-    /**
-     * @param array $requestParams
-     *
-     * @When I have :requestParams with runnable values (placed in <>)
-     *
-     * @Then :requestParams should be converted with executing runnable code
-     */
-    public function convertRunnableCodeParams(array $requestParams): array
+    protected function convertRunnableCodeParams(array $requestParams): array
     {
         foreach ($requestParams as $key => $value) {
             if (is_array($value)) {
@@ -369,5 +362,10 @@ class ApiContext implements Context
         }
 
         return $this->response;
+    }
+
+    public function geRequestParams(): array
+    {
+        return $this->requestParams;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BehatApiContext\Tests\Unit\Context;
 
+use Behat\Gherkin\Node\PyStringNode;
 use BehatApiContext\Context\ApiContext;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -27,103 +28,154 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @param array $paramsValues
+     * @param PyStringNode $paramsValues
      * @param string $initialParamValue
      *
-     * @dataProvider getConvertRunnableCodeParamsDataSuccess
+     * @dataProvider getTheRequestContainsParamsSuccess
      */
-    public function testConvertRunnableCodeParamsSuccess(array $paramsValues, string $initialParamValue): void
+    public function testTheRequestContainsParamsSuccess(PyStringNode $paramsValues, string $initialParamValue): void
     {
-        $this->assertEquals($initialParamValue, $paramsValues['dateFrom']);
-        $this->assertEquals($initialParamValue, $paramsValues['levelOne']['dateFrom']);
-        $this->assertEquals($initialParamValue, $paramsValues['levelOne']['levelTwo']['dateFrom']);
+        $this->assertTrue(str_contains($paramsValues->getStrings()[3], $initialParamValue));
+        $this->assertTrue(str_contains($paramsValues->getStrings()[6], $initialParamValue));
+        $this->assertTrue(str_contains($paramsValues->getStrings()[9], $initialParamValue));
 
-        $resultParamsValues = $this->apiContext->convertRunnableCodeParams($paramsValues);
+        $this->apiContext->theRequestContainsParams($paramsValues);
 
-        $this->assertIsInt($resultParamsValues['dateFrom']);
-        $this->assertIsInt($resultParamsValues['levelOne']['dateFrom']);
-        $this->assertIsInt($resultParamsValues['levelOne']['levelTwo']['dateFrom']);
-        $this->assertEquals(10, strlen((string)$resultParamsValues['dateFrom']));
-        $this->assertEquals(10, strlen((string)$resultParamsValues['levelOne']['dateFrom']));
-        $this->assertEquals(10, strlen((string)$resultParamsValues['levelOne']['levelTwo']['dateFrom']));
-        $this->assertEquals($paramsValues['tripId'], $resultParamsValues['tripId']);
-        $this->assertEquals($paramsValues['dateTo'], $resultParamsValues['dateTo']);
-        $this->assertEquals($paramsValues['levelOne']['dateTo'], $resultParamsValues['levelOne']['dateTo']);
+        $this->assertIsInt($this->apiContext->geRequestParams()['dateFrom']);
+        $this->assertIsInt($this->apiContext->geRequestParams()['levelOne']['dateFrom']);
+        $this->assertIsInt($this->apiContext->geRequestParams()['levelOne']['levelTwo']['dateFrom']);
+
         $this->assertEquals(
-            $paramsValues['levelOne']['levelTwo']['dateTo'],
-            $resultParamsValues['levelOne']['levelTwo']['dateTo']
+            10,
+            strlen((string)$this->apiContext->geRequestParams()['dateFrom'])
+        );
+        $this->assertEquals(
+            10,
+            strlen((string)$this->apiContext->geRequestParams()['levelOne']['dateFrom'])
+        );
+        $this->assertEquals(
+            10,
+            strlen((string)$this->apiContext->geRequestParams()['levelOne']['levelTwo']['dateFrom'])
+        );
+
+        $this->assertTrue(
+            str_contains(
+                $paramsValues->getStrings()[1],
+                $this->apiContext->geRequestParams()['tripId']
+            )
+        );
+        $this->assertTrue(
+            str_contains(
+                $paramsValues->getStrings()[2],
+                strval($this->apiContext->geRequestParams()['dateTo'])
+            )
+        );
+        $this->assertTrue(
+            str_contains(
+                $paramsValues->getStrings()[5],
+                strval($this->apiContext->geRequestParams()['levelOne']['dateTo'])
+            )
+        );
+        $this->assertTrue(
+            str_contains(
+                $paramsValues->getStrings()[8],
+                strval($this->apiContext->geRequestParams()['levelOne']['levelTwo']['dateTo'])
+            )
         );
     }
 
     /**
-     * @param array $paramsValues
+     * @param PyStringNode $paramsValues
      *
-     * @dataProvider getConvertRunnableCodeParamsDataError
+     * @dataProvider getTheRequestContainsParamsRuntimeException
      */
-    public function testConvertRunnableCodeParamsError(array $paramsValues): void
+    public function testTheRequestContainsParamsRuntimeException(PyStringNode $paramsValues): void
     {
         $this->expectException(RuntimeException::class);
-        $this->apiContext->convertRunnableCodeParams($paramsValues);
+        $this->apiContext->theRequestContainsParams($paramsValues);
     }
 
-    public function getConvertRunnableCodeParamsDataSuccess(): array
+    public function getTheRequestContainsParamsSuccess(): array
     {
         return [
             [
-                self::PARAMS_VALUES => [
-                    'tripId' => '26e185b9-a233-470e-b2d4-2818908a075f',
-                    'dateTo' => 1680361181,
-                    'dateFrom' => '<(new DateTimeImmutable())->getTimestamp()>',
-                    'levelOne' => [
-                        'dateTo' => 1680343281,
-                        'dateFrom' => '<(new DateTimeImmutable())->getTimestamp()>',
-                        'levelTwo' => [
-                            'dateTo' => 1680360351,
-                            'dateFrom' => '<(new DateTimeImmutable())->getTimestamp()>',
-                        ]
+                self::PARAMS_VALUES => new PyStringNode(
+                    [
+                        '{',
+                        '    "tripId": "26e185b9-a233-470e-b2d4-2818908a075f",',
+                        '    "dateTo": 1680361181,',
+                        '    "dateFrom": "<(new DateTimeImmutable())->getTimestamp()>",',
+                        '    "levelOne": {',
+                        '      "dateTo": 1680343281,',
+                        '      "dateFrom": "<(new DateTimeImmutable())->getTimestamp()>",',
+                        '      "levelTwo": {',
+                        '        "dateTo": 1680343281,',
+                        '        "dateFrom": "<(new DateTimeImmutable())->getTimestamp()>"',
+                        '      }',
+                        '    }',
+                        '}',
                     ],
-                ],
+                    12
+                ),
                 self::INITIAL_PARAM_VALUE => '<(new DateTimeImmutable())->getTimestamp()>',
             ],
         ];
     }
 
-    public function getConvertRunnableCodeParamsDataError(): array
+    public function getTheRequestContainsParamsRuntimeException(): array
     {
         return [
             [
-                self::PARAMS_VALUES => [
-                    'tripId' => '26e185b9-a233-470e-b2d4-2818908a075f',
-                    'dateTo' => 1680360081,
-                    'dateFrom' => '<(new DateTimeImutable())->getTimestamp()>',
-                ],
-            ],
-            [
-                self::PARAMS_VALUES => [
-                    'tripId' => '26e185b9-a233-470e-b2d4-2818908a075f',
-                    'levelOne' => [
-                        'dateTo' => 1680360081,
-                        'dateFrom' => '<(DateTimeImmutable)->getTimestamp()>',
+                self::PARAMS_VALUES => new PyStringNode(
+                    [
+                        '{',
+                        '    "tripId": "26e185b9-a233-470e-b2d4-2818908a075f",',
+                        '    "dateTo": 1680361181,',
+                        '    "dateFrom": "<(new DateTimeImutable())->getTimestamp()>"',
+                        '}',
                     ],
-                ],
+                    12
+                )
             ],
             [
-                self::PARAMS_VALUES => [
-                    'tripId' => '26e185b9-a233-470e-b2d4-2818908a075f',
-                    'levelOne' => [
-                        'levelTwo' => [
-                            'dateTo' => 1680360081,
-                            'dateFrom' => '<(ne DateTimeImmutable())->getTimestamp()>',
-                        ]
+                self::PARAMS_VALUES => new PyStringNode(
+                    [
+                        '{',
+                        '    "tripId": "26e185b9-a233-470e-b2d4-2818908a075f",',
+                        '    "dateTo": 1680361181,',
+                        '    "dateFrom": "<(DateTimeImmutable)->getTimestamp()>"',
+                        '}',
                     ],
-                ],
+                    12
+                )
             ],
             [
-                self::PARAMS_VALUES => [
-                    'tripId' => '26e185b9-a233-470e-b2d4-2818908a075f',
-                    'dateTo' => 1680360081,
-                    'dateFrom' => '<>',
-                ],
+                self::PARAMS_VALUES => new PyStringNode(
+                    [
+                        '{',
+                        '    "tripId": "26e185b9-a233-470e-b2d4-2818908a075f",',
+                        '    "levelOne": {',
+                        '      "levelTwo": {',
+                        '        "dateTo": 1680343281,',
+                        '        "dateFrom": "<(ne DateTimeImmutable())->getTimestamp()>"',
+                        '      }',
+                        '    }',
+                        '}',
+                    ],
+                    12
+                ),
+            ],
+            [
+                self::PARAMS_VALUES => new PyStringNode(
+                    [
+                        '{',
+                        '    "tripId": "26e185b9-a233-470e-b2d4-2818908a075f",',
+                        '    "dateTo": 1680361181,',
+                        '    "dateFrom": "<>"',
+                        '}',
+                    ],
+                    12
+                )
             ],
         ];
     }
