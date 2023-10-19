@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Throwable;
 
 class ApiContext implements Context
 {
@@ -327,12 +328,22 @@ class ApiContext implements Context
 
             $command = substr($value, 1, -1);
 
-            $resultValue = eval('return ' . $command . ';');
+            try {
+                $resultValue = eval('return ' . $command . ';');
+            } catch (Throwable $exception) {
+                throw new RuntimeException(
+                    sprintf(
+                        'Failed run your code %s, error message: %s',
+                        $value,
+                        $exception->getMessage()
+                    )
+                );
+            }
 
             if (is_null($resultValue)) {
-                throw new \Error(
+                throw new \RuntimeException(
                     sprintf(
-                        'Running code: \'%s\' - should not return the null',
+                        'Running code: %s - should not return the null',
                         $command
                     )
                 );
@@ -340,6 +351,7 @@ class ApiContext implements Context
 
             $requestParams[$key] = $resultValue;
         }
+
         return $requestParams;
     }
 

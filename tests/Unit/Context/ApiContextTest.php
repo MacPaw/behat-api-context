@@ -6,6 +6,7 @@ namespace BehatApiContext\Tests\Unit\Context;
 
 use BehatApiContext\Context\ApiContext;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -61,7 +62,7 @@ class ApiContextTest extends TestCase
      */
     public function testConvertRunnableCodeParamsError(array $paramsValues): void
     {
-        $this->expectException(\Error::class);
+        $this->expectException(RuntimeException::class);
         $this->apiContext->convertRunnableCodeParams($paramsValues);
     }
 
