@@ -319,7 +319,7 @@ class ApiContext implements Context
                 continue;
             }
 
-            $command = substr($value, 1, -1);
+            $command = substr(trim($value), 1, -1);
 
             try {
                 $resultValue = eval('return ' . $command . ';');
