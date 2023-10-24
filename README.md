@@ -62,11 +62,43 @@ Step 2: Configure Behat
 Go to `behat.yml`
 
 ```yaml
-...
+# ...
   contexts:
     - BehatApiContext\Context\ApiContext
-...
+# ...
 ```
+
+Usage 
+=============
+
+Runnable request parameters
+----------------------------------
+Main use case when tests need to use current date.
+Instead of static data in some `testCaseName.feature`, like this:
+```feature
+"""
+{
+    "dateTo": 1680360081,
+    "dateFrom": 1680532881,
+}
+"""
+```
+Can use, for example:
+```feature
+"""
+{
+    "dateTo": "<(new DateTimeImmutable())->add(new DateInterval('P6D'))->getTimeStamp()>",
+    "dateFrom": "<(new DateTimeImmutable())->add(new DateInterval('P2D'))->getTimeStamp()>",
+}
+"""
+```
+
+#### To accomplish this, several conditions must be met:
+- Runnable code must be a string and placed in `<>`
+- Should not add `return` keyword at the beginning, otherwise will get RuntimeException
+- Should not add `;` keyword at the end, otherwise will get RuntimeException
+- Should not use the code that returns `null`, otherwise will get RuntimeException
+
 
 [master Build Status]: https://github.com/macpaw/behat-api-context/actions?query=workflow%3ACI+branch%3Amaster
 [master Build Status Image]: https://github.com/macpaw/behat-api-context/workflows/CI/badge.svg?branch=master
