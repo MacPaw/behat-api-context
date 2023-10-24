@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Throwable;
 
 class ApiContext implements Context
 {
@@ -114,6 +115,7 @@ class ApiContext implements Context
         );
 
         $newRequestParams = (array) json_decode($processedParams, true, 512, JSON_THROW_ON_ERROR);
+        $newRequestParams = $this->convertRunnableCodeParams($newRequestParams);
         $this->requestParams = array_merge($this->requestParams, $newRequestParams);
         $this->savedValues = array_merge($this->savedValues, $newRequestParams);
     }
@@ -299,6 +301,53 @@ class ApiContext implements Context
         }
     }
 
+    protected function convertRunnableCodeParams(array $requestParams): array
+    {
+        foreach ($requestParams as $key => $value) {
+            if (is_array($value)) {
+                $requestParams[$key] = $this->convertRunnableCodeParams($value);
+                continue;
+            }
+
+            if (!is_string($value)) {
+                continue;
+            }
+
+            $pregMatchValue = preg_match('/^<.*>$/', trim($value));
+
+            if ($pregMatchValue === 0 || $pregMatchValue === false) {
+                continue;
+            }
+
+            $command = substr(trim($value), 1, -1);
+
+            try {
+                $resultValue = eval('return ' . $command . ';');
+            } catch (Throwable $exception) {
+                throw new RuntimeException(
+                    sprintf(
+                        'Failed run your code %s, error message: %s',
+                        $value,
+                        $exception->getMessage()
+                    )
+                );
+            }
+
+            if (is_null($resultValue)) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'Running code: %s - should not return the null',
+                        $command
+                    )
+                );
+            }
+
+            $requestParams[$key] = $resultValue;
+        }
+
+        return $requestParams;
+    }
+
     private function resetRequestOptions(): void
     {
         $this->headers = [];
@@ -313,5 +362,10 @@ class ApiContext implements Context
         }
 
         return $this->response;
+    }
+
+    public function geRequestParams(): array
+    {
+        return $this->requestParams;
     }
 }
