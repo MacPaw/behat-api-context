@@ -29,10 +29,10 @@
         "ext-json": "*",
         "php": "^7.4 || ^8.0",
         "behat/behat": "^3.0",
-        "symfony/dependency-injection": "^4.4 || ^5.4 || ^6.0",
-        "symfony/http-client": "^4.4 || ^5.4 || ^6.0",
-        "symfony/http-kernel": "^4.4 || ^5.4 || ^6.0",
-        "symfony/routing": "^4.4 || ^5.4 || ^6.0",
+        "symfony/dependency-injection": "^4.4 || ^5.4 || ^6.0 || ^7.0",
+        "symfony/http-client": "^4.4 || ^5.4 || ^6.0 || ^7.0",
+        "symfony/http-kernel": "^4.4 || ^5.4 || ^6.0 || ^7.0",
+        "symfony/routing": "^4.4 || ^5.4 || ^6.0 || ^7.0",
         "macpaw/similar-arrays": "^1.0"
     },
     "require-dev": {
