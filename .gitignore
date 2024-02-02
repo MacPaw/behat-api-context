@@ -2,6 +2,7 @@
 /composer.lock
 /build/
 /.phpunit.result.cache
+/.phpunit.cache
 /node_modules/
 /.idea/
 /package-lock.json

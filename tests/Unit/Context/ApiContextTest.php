@@ -6,6 +6,8 @@ namespace BehatApiContext\Tests\Unit\Context;
 
 use Behat\Gherkin\Node\PyStringNode;
 use BehatApiContext\Context\ApiContext;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -27,12 +29,8 @@ class ApiContextTest extends TestCase
         $this->apiContext = new ApiContext($routerMock, $requestStackMock, $kernelMock);
     }
 
-    /**
-     * @param PyStringNode $paramsValues
-     * @param string $initialParamValue
-     *
-     * @dataProvider getTheRequestContainsParamsSuccess
-     */
+    #[Test]
+    #[DataProvider('getTheRequestContainsParamsSuccess')]
     public function testTheRequestContainsParamsSuccess(PyStringNode $paramsValues, string $initialParamValue): void
     {
         $this->assertTrue(str_contains($paramsValues->getStrings()[3], $initialParamValue));
@@ -84,18 +82,15 @@ class ApiContextTest extends TestCase
         );
     }
 
-    /**
-     * @param PyStringNode $paramsValues
-     *
-     * @dataProvider getTheRequestContainsParamsRuntimeException
-     */
+    #[Test]
+    #[DataProvider('getTheRequestContainsParamsRuntimeException')]
     public function testTheRequestContainsParamsRuntimeException(PyStringNode $paramsValues): void
     {
         $this->expectException(RuntimeException::class);
         $this->apiContext->theRequestContainsParams($paramsValues);
     }
 
-    public function getTheRequestContainsParamsSuccess(): array
+    public static function getTheRequestContainsParamsSuccess(): array
     {
         return [
             [
@@ -122,7 +117,7 @@ class ApiContextTest extends TestCase
         ];
     }
 
-    public function getTheRequestContainsParamsRuntimeException(): array
+    public static function getTheRequestContainsParamsRuntimeException(): array
     {
         return [
             [

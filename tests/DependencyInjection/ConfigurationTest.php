@@ -6,11 +6,13 @@ namespace BehatApiContext\Tests\DependencyInjection;
 
 use BehatApiContext\DependencyInjection\Configuration;
 use BehatApiContext\Service\ResetManager\DoctrineResetManager;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Processor;
 
 final class ConfigurationTest extends TestCase
 {
+    #[Test]
     public function testProcessConfigurationWithEmptyConfiguration(): void
     {
         $expectedBundleDefaultConfig = [
@@ -20,6 +22,7 @@ final class ConfigurationTest extends TestCase
         $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration([]));
     }
 
+    #[Test]
     public function testProcessConfigurationWithDefaultConfiguration(): void
     {
         $config = [
@@ -35,6 +38,7 @@ final class ConfigurationTest extends TestCase
         $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration($config));
     }
 
+    #[Test]
     public function testProcessConfigurationWithFilledConfiguration(): void
     {
         $config = [

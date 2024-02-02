@@ -7,6 +7,7 @@ namespace BehatApiContext\Tests\DependencyInjection;
 use BehatApiContext\Context\ApiContext;
 use BehatApiContext\DependencyInjection\BehatApiContextExtension;
 use BehatApiContext\Service\ResetManager\DoctrineResetManager;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -14,6 +15,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class BehatApiContextExtensionTest extends TestCase
 {
+    #[Test]
     public function testWithEmptyConfig(): void
     {
         $container = $this->createContainerFromFixture('empty_bundle_config');
@@ -24,6 +26,7 @@ class BehatApiContextExtensionTest extends TestCase
         self::assertCount(0, $methodCalls);
     }
 
+    #[Test]
     public function testWithFilledConfig(): void
     {
         $container = $this->createContainerFromFixture('filled_bundle_config');
