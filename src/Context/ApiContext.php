@@ -136,7 +136,11 @@ class ApiContext implements Context
 
         if (Request::METHOD_GET === $method) {
             $queryString = http_build_query($this->requestParams);
-        } elseif (Request::METHOD_POST === $method || Request::METHOD_PATCH === $method || Request::METHOD_PUT === $method) {
+        } elseif (
+            Request::METHOD_POST === $method
+            || Request::METHOD_PATCH === $method
+            || Request::METHOD_PUT === $method
+        ) {
             $postFields = $this->requestParams;
         }
 

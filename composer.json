@@ -27,7 +27,7 @@
     "license": "MIT",
     "require": {
         "ext-json": "*",
-        "php": "^7.4 || ^8.0",
+        "php": "^7.4 || ^8.0 || ^8.2",
         "behat/behat": "^3.14",
         "symfony/dependency-injection": "^4.4 || ^5.4 || ^6.0 || ^7.0",
         "symfony/http-client": "^4.4 || ^5.4 || ^6.0 || ^7.0",
