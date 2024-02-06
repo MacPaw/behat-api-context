@@ -73,6 +73,7 @@ jobs:
             - name: Update Symfony version
               if: matrix.symfony-versions != ''
               run: |
+                  composer require symfony/config:${{ matrix.symfony-versions }} --no-update --no-scripts
                   composer require symfony/http-client:${{ matrix.symfony-versions }} --no-update --no-scripts
                   composer require symfony/dependency-injection:${{ matrix.symfony-versions }} --no-update --no-scripts
                   composer require symfony/http-kernel:${{ matrix.symfony-versions }} --no-update --no-scripts
