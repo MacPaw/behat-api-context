@@ -301,6 +301,58 @@ class ApiContext implements Context
         }
     }
 
+    /**
+     * @Then the :headerName response headers contains :headerValue
+     */
+    public function theResponseHeadersContains(string $headerName, string $headerValue): void
+    {
+        $this->checkResponseHeader($headerName, $headerValue);
+    }
+
+    /**
+     * @And the :headerName response headers contains :headerValue
+     */
+    public function theAndResponseHeadersContains(string $headerName, string $headerValue): void
+    {
+        $this->checkResponseHeader($headerName, $headerValue);
+    }
+
+    protected function checkResponseHeader(string $headerName, string $headerValue): void
+    {
+        $givenHeaderName = $this->stringManager->substituteValues(
+            $this->savedValues,
+            trim($headerName),
+        );
+        $givenHeaderValue = $this->stringManager->substituteValues(
+            $this->savedValues,
+            trim($headerValue),
+        );
+
+        $response = $this->getResponse();
+
+        if (!$response->headers->has($givenHeaderName)) {
+            $message = sprintf(
+                'Response header %s does not exists',
+                $givenHeaderName,
+            );
+
+            throw new RuntimeException($message);
+        }
+
+        $responseHeaderValue = $response->headers->get($givenHeaderName);
+
+        if (null === $responseHeaderValue || !substr_count($responseHeaderValue, $givenHeaderValue) > 0) {
+            $message = sprintf(
+                'Response header %s does not match. Expected: %s, given value: %s',
+                $givenHeaderName,
+                $givenHeaderValue,
+                $responseHeaderValue,
+            );
+
+            throw new RuntimeException($message);
+        }
+    }
+
     protected function convertRunnableCodeParams(array $requestParams): array
     {
         foreach ($requestParams as $key => $value) {
