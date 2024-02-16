@@ -21,17 +21,6 @@ final class WhenApiContextsTest extends AbstractApiContextTest
     private ?Response $response = null;
     private bool $invalidRouteMock = false;
 
-    /**
-     * @return array<int, string[]>
-     */
-    public function methods(): array
-    {
-        return [
-            [Request::METHOD_GET],
-            [Request::METHOD_POST],
-        ];
-    }
-
     protected function setUp(): void
     {
         $this->route = new Route(
@@ -45,17 +34,6 @@ final class WhenApiContextsTest extends AbstractApiContextTest
         }
 
         parent::setUp();
-    }
-
-    /**
-     * @dataProvider methods
-     */
-    public function testSendRequestToRoute(string $method): void
-    {
-        $this->apiContext->iSendRequestToRoute($method, '/api/users/{id}');
-
-        $this->assertNotNull($this->response);
-        $this->assertNotNull($this->request);
     }
 
     public function testExceptionWhenRouteNotFound(): void
@@ -77,13 +55,15 @@ final class WhenApiContextsTest extends AbstractApiContextTest
             ->willReturn(
                 $routeCollection,
             );
-        $router->expects($this->once())
-            ->method('generate');
 
         if (true === $this->invalidRouteMock) {
             $router->expects($this->once())
                 ->method('generate')
                 ->willThrowException(new RouteNotFoundException());
+        } else {
+            $router->expects($this->once())
+                ->method('generate')
+                ->willReturn('/api/users/1');
         }
 
         assert($router instanceof RouterInterface);

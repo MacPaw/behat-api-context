@@ -25,7 +25,6 @@ class DoctrineResetManager implements ResetManagerInterface
             foreach ($entityManagers as $entityManagerId) {
                 if ($container->initialized($entityManagerId)) {
                     $em = $container->get($entityManagerId);
-//                    assert($em instanceof EntityManagerInterface);
                     $em->clear();
 
                     $connection = $em->getConnection();
