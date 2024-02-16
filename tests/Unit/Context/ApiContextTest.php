@@ -5,27 +5,12 @@ declare(strict_types=1);
 namespace BehatApiContext\Tests\Unit\Context;
 
 use Behat\Gherkin\Node\PyStringNode;
-use BehatApiContext\Context\ApiContext;
-use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Routing\RouterInterface;
 
-class ApiContextTest extends TestCase
+class ApiContextTest extends AbstractApiContextTest
 {
     private const PARAMS_VALUES = 'paramsValues';
     private const INITIAL_PARAM_VALUE = 'initialParamValue';
-    private ApiContext $apiContext;
-
-    protected function setUp(): void
-    {
-        $routerMock = $this->createMock(RouterInterface::class);
-        $requestStackMock = $this->createMock(RequestStack::class);
-        $kernelMock = $this->createMock(KernelInterface::class);
-
-        $this->apiContext = new ApiContext($routerMock, $requestStackMock, $kernelMock);
-    }
 
     /**
      * @param PyStringNode $paramsValues
@@ -47,40 +32,40 @@ class ApiContextTest extends TestCase
 
         $this->assertEquals(
             10,
-            strlen((string)$this->apiContext->geRequestParams()['dateFrom'])
+            strlen((string)$this->apiContext->geRequestParams()['dateFrom']),
         );
         $this->assertEquals(
             10,
-            strlen((string)$this->apiContext->geRequestParams()['levelOne']['dateFrom'])
+            strlen((string)$this->apiContext->geRequestParams()['levelOne']['dateFrom']),
         );
         $this->assertEquals(
             10,
-            strlen((string)$this->apiContext->geRequestParams()['levelOne']['levelTwo']['dateFrom'])
+            strlen((string)$this->apiContext->geRequestParams()['levelOne']['levelTwo']['dateFrom']),
         );
 
         $this->assertTrue(
             str_contains(
                 $paramsValues->getStrings()[1],
-                $this->apiContext->geRequestParams()['tripId']
-            )
+                $this->apiContext->geRequestParams()['tripId'],
+            ),
         );
         $this->assertTrue(
             str_contains(
                 $paramsValues->getStrings()[2],
-                strval($this->apiContext->geRequestParams()['dateTo'])
-            )
+                strval($this->apiContext->geRequestParams()['dateTo']),
+            ),
         );
         $this->assertTrue(
             str_contains(
                 $paramsValues->getStrings()[5],
-                strval($this->apiContext->geRequestParams()['levelOne']['dateTo'])
-            )
+                strval($this->apiContext->geRequestParams()['levelOne']['dateTo']),
+            ),
         );
         $this->assertTrue(
             str_contains(
                 $paramsValues->getStrings()[8],
-                strval($this->apiContext->geRequestParams()['levelOne']['levelTwo']['dateTo'])
-            )
+                strval($this->apiContext->geRequestParams()['levelOne']['levelTwo']['dateTo']),
+            ),
         );
     }
 
@@ -115,7 +100,7 @@ class ApiContextTest extends TestCase
                         '    }',
                         '}',
                     ],
-                    12
+                    12,
                 ),
                 self::INITIAL_PARAM_VALUE => '<(new DateTimeImmutable())->getTimestamp()>',
             ],
@@ -134,8 +119,8 @@ class ApiContextTest extends TestCase
                         '    "dateFrom": "<(new DateTimeImutable())->getTimestamp()>"',
                         '}',
                     ],
-                    12
-                )
+                    12,
+                ),
             ],
             [
                 self::PARAMS_VALUES => new PyStringNode(
@@ -146,8 +131,8 @@ class ApiContextTest extends TestCase
                         '    "dateFrom": "<(DateTimeImmutable)->getTimestamp()>"',
                         '}',
                     ],
-                    12
-                )
+                    12,
+                ),
             ],
             [
                 self::PARAMS_VALUES => new PyStringNode(
@@ -162,7 +147,7 @@ class ApiContextTest extends TestCase
                         '    }',
                         '}',
                     ],
-                    12
+                    12,
                 ),
             ],
             [
@@ -174,8 +159,8 @@ class ApiContextTest extends TestCase
                         '    "dateFrom": "<>"',
                         '}',
                     ],
-                    12
-                )
+                    12,
+                ),
             ],
         ];
     }
