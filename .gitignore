@@ -6,3 +6,7 @@
 /.idea/
 /package-lock.json
 .DS_Store
+/phpunit.xml
+/phpcs.xml
+/phpstan.neon
+/coverage
