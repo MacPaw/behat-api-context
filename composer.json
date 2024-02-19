@@ -58,6 +58,7 @@
         "code-style": "./vendor/bin/phpcs",
         "code-style-fix": "./vendor/bin/phpcbf",
         "phpunit": "./vendor/bin/phpunit",
+        "phpunit-html-coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-html=coverage",
         "dev-checks": [
             "composer validate",
             "@phpstan",

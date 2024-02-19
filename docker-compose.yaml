@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  php80:
+    build:
+      context: .infrastructure
+      dockerfile: docker/Dockerfile
+      args:
+        from_image: php:8.0-fpm-alpine
+    working_dir: /app
+    environment:
+      PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/app/vendor/bin"
+    volumes:
+      - ./:/app

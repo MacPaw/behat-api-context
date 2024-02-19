@@ -6,8 +6,8 @@ namespace BehatApiContext\Context;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
-use BehatApiContext\Service\StringManager;
 use BehatApiContext\Service\ResetManager\ResetManagerInterface;
+use BehatApiContext\Service\StringManager;
 use RuntimeException;
 use SimilarArrays\SimilarArray;
 use Symfony\Component\HttpFoundation\Request;
@@ -136,7 +136,7 @@ class ApiContext implements Context
 
         if (Request::METHOD_GET === $method) {
             $queryString = http_build_query($this->requestParams);
-        } elseif (Request::METHOD_POST === $method || Request::METHOD_PATCH === $method || Request::METHOD_PUT === $method) {
+        } elseif (in_array($method, [Request::METHOD_POST, Request::METHOD_PATCH, Request::METHOD_PUT], true)) {
             $postFields = $this->requestParams;
         }
 
@@ -374,7 +374,9 @@ class ApiContext implements Context
             $command = substr(trim($value), 1, -1);
 
             try {
+                // phpcs:disable
                 $resultValue = eval('return ' . $command . ';');
+                // phpcs:enable
             } catch (Throwable $exception) {
                 throw new RuntimeException(
                     sprintf(
