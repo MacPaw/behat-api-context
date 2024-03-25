@@ -10,7 +10,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use RuntimeException;
 
-final class DatabaseContext implements Context
+final class ORMContext implements Context
 {
     private EntityManagerInterface $manager;
 

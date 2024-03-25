@@ -1,1 +1,2 @@
 behat_api_context:
+  use_orm_context: false
