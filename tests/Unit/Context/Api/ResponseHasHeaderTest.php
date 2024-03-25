@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BehatApiContext\Tests\Unit\Context;
+namespace BehatApiContext\Tests\Unit\Context\Api;
 
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
