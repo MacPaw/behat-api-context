@@ -38,6 +38,9 @@ jobs:
             - name: Install dependencies
               run: composer install --no-progress --no-interaction --prefer-dist
 
+            - name: Add doctrine/orm
+              run: composer require --no-progress --no-interaction --prefer-dist doctrine/orm:^2.0
+
             - name: Run script
               run: composer phpstan
 
