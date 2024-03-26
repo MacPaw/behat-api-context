@@ -68,6 +68,14 @@ Go to `behat.yml`
 # ...
 ```
 
+If you want use orm context add to `behat.yml`
+```yaml
+# ...
+  contexts:
+    - BehatApiContext\Context\ORMContext 
+# ...
+```
+
 Usage 
 =============
 

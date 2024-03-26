@@ -14,7 +14,8 @@ final class ConfigurationTest extends TestCase
     public function testProcessConfigurationWithEmptyConfiguration(): void
     {
         $expectedBundleDefaultConfig = [
-            'kernel_reset_managers' => []
+            'kernel_reset_managers' => [],
+            'use_orm_context' => true,
         ];
 
         $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration([]));
@@ -24,12 +25,14 @@ final class ConfigurationTest extends TestCase
     {
         $config = [
             'behat_api_context' => [
-                'kernel_reset_managers' => []
+                'kernel_reset_managers' => [],
+                'use_orm_context' => true,
             ]
         ];
 
         $expectedBundleDefaultConfig = [
-            'kernel_reset_managers' => []
+            'kernel_reset_managers' => [],
+            'use_orm_context' => true,
         ];
 
         $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration($config));
@@ -41,14 +44,16 @@ final class ConfigurationTest extends TestCase
             'behat_api_context' => [
                 'kernel_reset_managers' => [
                     DoctrineResetManager::class
-                ]
+                ],
+                'use_orm_context' => true,
             ]
         ];
 
         $expectedBundleDefaultConfig = [
             'kernel_reset_managers' => [
                 DoctrineResetManager::class
-            ]
+            ],
+            'use_orm_context' => true,
         ];
 
         $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration($config));
