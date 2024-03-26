@@ -60,18 +60,12 @@ class BehatApiContextExtension extends Extension
     {
         $config['use_orm_context'] = $config['use_orm_context'] ?? true;
 
-        if (!$config['use_orm_context']) {
+        if ($config['use_orm_context']) {
             return;
         }
 
-        if (!$container->has(EntityManagerInterface::class)) {
-            throw new RuntimeException('Entity manager does not exists');
+        if ($container->getDefinition(ORMContext::class)) {
+            $container->removeDefinition(ORMContext::class);
         }
-
-        $entityManagerDef = $container->get(EntityManagerInterface::class);
-
-        $ormContextDef = new Definition(ORMContext::class);
-        $ormContextDef->setArgument('$manager', $entityManagerDef);
-        $container->setDefinition(ORMContext::class, $ormContextDef);
     }
 }

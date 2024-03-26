@@ -5,6 +5,7 @@
 
     <services>
         <service public="true" autowire="true" id="BehatApiContext\Context\ApiContext" class="BehatApiContext\Context\ApiContext"/>
+        <service public="true" autowire="true" id="BehatApiContext\Context\ORMContext" class="BehatApiContext\Context\ORMContext"/>
 
         <service public="false" id="BehatApiContext\Service\ResetManager\DoctrineResetManager" class="BehatApiContext\Service\ResetManager\DoctrineResetManager"/>
     </services>
