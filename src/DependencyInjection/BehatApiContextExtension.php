@@ -6,12 +6,8 @@ namespace BehatApiContext\DependencyInjection;
 
 use BehatApiContext\Context\ApiContext;
 use BehatApiContext\Context\ORMContext;
-use Doctrine\ORM\EntityManagerInterface;
-use Psr\Container\ContainerInterface;
-use RuntimeException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
@@ -30,7 +26,7 @@ class BehatApiContextExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->loadApiContext($config, $loader, $container);
-        $this->enableOrmContext($config, $container);
+        $this->disableOrmContext($config, $container);
     }
 
     /**
@@ -50,28 +46,20 @@ class BehatApiContextExtension extends Extension
 
                 $apiContextDefinition->addMethodCall(
                     'addKernelResetManager',
-                    [$resetManagerDefinition]
+                    [$resetManagerDefinition],
                 );
             }
         }
     }
 
-    private function enableOrmContext(array $config, ContainerBuilder $container): void
+    private function disableOrmContext(array $config, ContainerBuilder $container): void
     {
         $config['use_orm_context'] = $config['use_orm_context'] ?? true;
 
-        if (!$config['use_orm_context']) {
+        if ($config['use_orm_context']) {
             return;
         }
 
-        if (!$container->has(EntityManagerInterface::class)) {
-            throw new RuntimeException('Entity manager does not exists');
-        }
-
-        $entityManagerDef = $container->get(EntityManagerInterface::class);
-
-        $ormContextDef = new Definition(ORMContext::class);
-        $ormContextDef->setArgument('$manager', $entityManagerDef);
-        $container->setDefinition(ORMContext::class, $ormContextDef);
+        $container->removeDefinition(ORMContext::class);
     }
 }
