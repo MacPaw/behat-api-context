@@ -25,7 +25,11 @@ class Configuration implements ConfigurationInterface
         $builder
             ->arrayNode('kernel_reset_managers')
                 ->scalarPrototype()->end()
-                ->end()
-            ->end();
+            ->end()
+
+            ->booleanNode('use_orm_context')
+                ->defaultValue(true)
+            ->end()
+        ->end();
     }
 }
