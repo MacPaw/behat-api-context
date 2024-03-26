@@ -50,7 +50,7 @@ class BehatApiContextExtension extends Extension
 
                 $apiContextDefinition->addMethodCall(
                     'addKernelResetManager',
-                    [$resetManagerDefinition]
+                    [$resetManagerDefinition],
                 );
             }
         }
@@ -64,8 +64,6 @@ class BehatApiContextExtension extends Extension
             return;
         }
 
-        if ($container->getDefinition(ORMContext::class)) {
-            $container->removeDefinition(ORMContext::class);
-        }
+        $container->removeDefinition(ORMContext::class);
     }
 }
