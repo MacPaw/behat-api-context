@@ -50,7 +50,7 @@ class BehatApiContextExtension extends Extension
 
                 $apiContextDefinition->addMethodCall(
                     'addKernelResetManager',
-                    [$resetManagerDefinition]
+                    [$resetManagerDefinition],
                 );
             }
         }
@@ -60,18 +60,10 @@ class BehatApiContextExtension extends Extension
     {
         $config['use_orm_context'] = $config['use_orm_context'] ?? true;
 
-        if (!$config['use_orm_context']) {
+        if ($config['use_orm_context']) {
             return;
         }
 
-        if (!$container->has(EntityManagerInterface::class)) {
-            throw new RuntimeException('Entity manager does not exists');
-        }
-
-        $entityManagerDef = $container->get(EntityManagerInterface::class);
-
-        $ormContextDef = new Definition(ORMContext::class);
-        $ormContextDef->setArgument('$manager', $entityManagerDef);
-        $container->setDefinition(ORMContext::class, $ormContextDef);
+        $container->removeDefinition(ORMContext::class);
     }
 }
