@@ -12,6 +12,7 @@ jobs:
                 php:
                     - '8.1'
                     - '8.2'
+                    - '8.3'
                 coverage: ['none']
                 symfony-versions:
                     - '4.4.*'
@@ -95,7 +96,7 @@ jobs:
 
             - name: Run codecov
               uses: codecov/codecov-action@v1
-              if: matrix.coverage == 'xdebug'
+              if: matrix.coverage == 'xdebug' && matrix.php == '8.3' && matrix.symfony-versions == '^7.0'
               with:
                   file: './coverage.xml'
                   fail_ci_if_error: true
