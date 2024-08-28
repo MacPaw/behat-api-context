@@ -96,7 +96,7 @@ jobs:
 
             - name: Run codecov
               uses: codecov/codecov-action@v1
-              if: matrix.coverage == 'xdebug' && matrix.php == '8.3' && matrix.symfony-versions == '^7.0'
+              if: matrix.coverage == 'xdebug'
               with:
                   file: './coverage.xml'
                   fail_ci_if_error: true
