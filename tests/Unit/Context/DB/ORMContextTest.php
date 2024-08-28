@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BehatApiContext\Tests\Unit\Context\DB;
 
+use Behat\Gherkin\Node\PyStringNode;
 use BehatApiContext\Context\ORMContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
@@ -47,7 +48,7 @@ final class ORMContextTest extends TestCase
         $context = $this->createContext(
             'App\Entity\SomeEntity',
             1,
-            self::UUID,
+            ['id' => self::UUID],
         );
         $context->thenISeeEntityInRepositoryWithId(
             'App\Entity\SomeEntity',
@@ -60,7 +61,7 @@ final class ORMContextTest extends TestCase
         $context = $this->createContext(
             'App\Entity\SomeEntity',
             1,
-            self::UUID,
+            ['id' => self::UUID],
         );
         $context->andISeeEntityInRepositoryWithId(
             'App\Entity\SomeEntity',
@@ -68,10 +69,35 @@ final class ORMContextTest extends TestCase
         );
     }
 
+    public function testThenISeeEntityInRepositoryWithProperties(): void
+    {
+        $context = $this->createContext(
+            'App\Entity\SomeEntity',
+            1,
+            [
+                'id' => self::UUID,
+                'someProperty' => 'someValue',
+                'otherProperty' => 'otherValue',
+            ],
+        );
+        $context->andISeeEntityInRepositoryWithProperties(
+            'App\Entity\SomeEntity',
+            new PyStringNode([
+                <<<'PSN'
+                {
+                    "id": "e809639f-011a-4ae0-9ae3-8fcb460fe950",
+                    "someProperty": "someValue",
+                    "otherProperty": "otherValue"
+                }
+                PSN
+            ], 1),
+        );
+    }
+
     private function createContext(
         string $entityName,
         int $count = 1,
-        ?string $id = null
+        ?array $properties = null
     ): ORMContext {
         $queryMock = $this->getMockBuilder(Query::class)
             ->disableOriginalConstructor()
@@ -96,15 +122,15 @@ final class ORMContextTest extends TestCase
                 'e',
             )->willReturn($queryBuilderMock);
 
-        if (null !== $id) {
-            $queryBuilderMock->expects(self::once())
-                ->method('where')
-                ->with('e.id = :valueid')
-                ->willReturn($queryBuilderMock);
-            $queryBuilderMock->expects(self::once())
-                ->method('setParameter')
-                ->with('valueid', $id)
-                ->willReturn($queryBuilderMock);
+        if (null !== $properties) {
+            foreach ($properties as $name => $value) {
+                $queryBuilderMock->expects(self::exactly(count($properties)))
+                    ->method('andWhere')
+                    ->willReturnSelf();
+                $queryBuilderMock->expects(self::exactly(count($properties)))
+                    ->method('setParameter')
+                    ->willReturnSelf();
+            }
         }
 
         $queryBuilderMock->expects(self::once())

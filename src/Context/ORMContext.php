@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BehatApiContext\Context;
 
 use Behat\Behat\Context\Context;
+use Behat\Gherkin\Node\PyStringNode;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -52,6 +53,15 @@ final class ORMContext implements Context
     }
 
     /**
+     * @Then I see entity :entity with properties:
+     */
+    public function andISeeEntityInRepositoryWithProperties(string $entityClass, PyStringNode $string): void
+    {
+        $expectedProperties = json_decode(trim($string->getRaw()), true, 512, JSON_THROW_ON_ERROR);
+        $this->seeInRepository(1, $entityClass, $expectedProperties);
+    }
+
+    /**
      * @param array<string, mixed> $params
      *
      * @throws NonUniqueResultException
@@ -65,8 +75,8 @@ final class ORMContext implements Context
 
         if (null !== $params) {
             foreach ($params as $columnName => $columnValue) {
-                $query->where("e.$columnName = :value$columnName")
-                    ->setParameter("value$columnName", $columnValue);
+                $query->andWhere(sprintf('e.%s = :%s', $columnName, $columnName))
+                    ->setParameter($columnName, $columnValue);
             }
         }
 
