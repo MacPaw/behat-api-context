@@ -1,0 +1,24 @@
+on:
+  pull_request:
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  security-checker:
+    name: Security checker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      - name: Download local-php-security-checker
+        run: curl -s -L -o local-php-security-checker https://github.com/fabpot/local-php-security-checker/releases/download/v1.0.0/local-php-security-checker_1.0.0_linux_amd64
+
+      - name: Run local-php-security-checker
+        run: chmod +x local-php-security-checker && ./local-php-security-checker
