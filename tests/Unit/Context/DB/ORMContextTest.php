@@ -94,6 +94,29 @@ final class ORMContextTest extends TestCase
         );
     }
 
+    public function testThenISeeEntityInRepositoryWithPropertyNull(): void
+    {
+        $context = $this->createContext(
+            'App\Entity\SomeEntity',
+            1,
+            [
+                'id' => self::UUID,
+                'someProperty' => null,
+            ],
+        );
+        $context->andISeeEntityInRepositoryWithProperties(
+            'App\Entity\SomeEntity',
+            new PyStringNode([
+                <<<'PSN'
+                {
+                    "id": "e809639f-011a-4ae0-9ae3-8fcb460fe950",
+                    "someProperty": null
+                }
+                PSN
+            ], 1),
+        );
+    }
+
     private function createContext(
         string $entityName,
         int $count = 1,
@@ -127,7 +150,10 @@ final class ORMContextTest extends TestCase
                 $queryBuilderMock->expects(self::exactly(count($properties)))
                     ->method('andWhere')
                     ->willReturnSelf();
-                $queryBuilderMock->expects(self::exactly(count($properties)))
+                $setParametersCount = count(array_filter($properties, function ($value) {
+                    return !is_null($value);
+                }));
+                $queryBuilderMock->expects(self::exactly($setParametersCount))
                     ->method('setParameter')
                     ->willReturnSelf();
             }

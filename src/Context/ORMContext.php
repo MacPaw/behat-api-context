@@ -75,8 +75,12 @@ final class ORMContext implements Context
 
         if (null !== $params) {
             foreach ($params as $columnName => $columnValue) {
-                $query->andWhere(sprintf('e.%s = :%s', $columnName, $columnName))
-                    ->setParameter($columnName, $columnValue);
+                if ($columnValue === null) {
+                    $query->andWhere(sprintf('e.%s IS NULL', $columnName));
+                } else {
+                    $query->andWhere(sprintf('e.%s = :%s', $columnName, $columnName))
+                        ->setParameter($columnName, $columnValue);
+                }
             }
         }
 
