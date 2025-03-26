@@ -128,16 +128,16 @@ class ApiContext implements Context
         string $route
     ): void {
         $routeParams = $this->popRouteAttributesFromRequestParams($route, $this->requestParams);
-        $postFields = [];
-        $queryString = '';
 
         $url = $this->router->generate($route, $routeParams);
         $url = preg_replace('|^/app[^\.]*\.php|', '', $url);
 
+        $queryString = '';
         if (Request::METHOD_GET === $method) {
             $queryString = http_build_query($this->requestParams);
         }
 
+        $postFields = [];
         if (in_array($method, [Request::METHOD_POST, Request::METHOD_PATCH, Request::METHOD_PUT, Request::METHOD_DELETE], true)) {
             $postFields = $this->requestParams;
         }
