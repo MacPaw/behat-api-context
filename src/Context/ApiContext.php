@@ -138,7 +138,7 @@ class ApiContext implements Context
             $queryString = http_build_query($this->requestParams);
         }
 
-        if (in_array($method, [Request::METHOD_POST, Request::METHOD_PATCH, Request::METHOD_PUT, Request::METHOD_DELETE], true)) {
+        if (in_array($method, [Request::METHOD_POST, Request::METHOD_PATCH, Request::METHOD_PUT], true)) {
             $postFields = $this->requestParams;
         }
 
