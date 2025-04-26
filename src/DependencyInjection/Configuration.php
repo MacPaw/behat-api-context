@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BehatApiContext\DependencyInjection;
 
+use Composer\InstalledVersions;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -28,8 +29,17 @@ class Configuration implements ConfigurationInterface
             ->end()
 
             ->booleanNode('use_orm_context')
-                ->defaultValue(true)
+                ->defaultValue($this->checkOrmContextDefValue())
             ->end()
         ->end();
+    }
+
+    private function checkOrmContextDefValue(): bool
+    {
+        if (!InstalledVersions::getVersion('doctine/orm')) {
+            return false;
+        }
+
+        return true;
     }
 }
