@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BehatApiContext\Tests\DependencyInjection;
 
 use BehatApiContext\Context\ApiContext;
+use BehatApiContext\Context\ORMContext;
 use BehatApiContext\DependencyInjection\BehatApiContextExtension;
 use BehatApiContext\Service\ResetManager\DoctrineResetManager;
 use PHPUnit\Framework\TestCase;
@@ -27,12 +28,42 @@ class BehatApiContextExtensionTest extends TestCase
     public function testWithFilledConfig(): void
     {
         $container = $this->createContainerFromFixture('filled_bundle_config');
-
         $apiContextDefinition = $container->getDefinition(ApiContext::class);
-        $doctrineResetManagerDefinition = $container->getDefinition(DoctrineResetManager::class);
 
         $methodCalls = $apiContextDefinition->getMethodCalls();
-        $this->assertDefinitionMethodCall($methodCalls[0], 'addKernelResetManager', [$doctrineResetManagerDefinition]);
+
+        self::assertFalse($container->hasDefinition(ORMContext::class));
+        self::assertCount(0, $methodCalls);
+    }
+
+    public function testWithOrmContextEnabled(): void
+    {
+        $container = $this->createContainerFromFixture('with_orm_context');
+
+        self::assertTrue($container->hasDefinition(ORMContext::class));
+
+        $ormContextDefinition = $container->getDefinition(ORMContext::class);
+        $doctrineResetManagerDefinition = $container->getDefinition(DoctrineResetManager::class);
+
+        $methodCalls = $ormContextDefinition->getMethodCalls();
+
+        $this->assertDefinitionMethodCall(
+            $methodCalls[0],
+            'addKernelResetManager',
+            [$doctrineResetManagerDefinition]
+        );
+    }
+
+    public function testWithOrmContextDisabled(): void
+    {
+        $container = $this->createContainerFromFixture('without_orm_context');
+
+        $this->assertFalse($container->hasDefinition(ORMContext::class));
+
+        $apiContextDefinition = $container->getDefinition(ApiContext::class);
+        $methodCalls = $apiContextDefinition->getMethodCalls();
+
+        $this->assertCount(0, $methodCalls);
     }
 
     private function createContainerFromFixture(string $fixtureFile): ContainerBuilder
@@ -45,6 +76,8 @@ class BehatApiContextExtensionTest extends TestCase
         $container->getCompilerPassConfig()->setAfterRemovingPasses([]);
 
         $this->loadFixture($container, $fixtureFile);
+
+        $container->loadFromExtension('behat_api_context');
 
         $container->compile();
 
@@ -59,7 +92,7 @@ class BehatApiContextExtensionTest extends TestCase
 
     private function assertDefinitionMethodCall(array $methodCall, string $method, array $arguments): void
     {
-        $this->assertSame($method, $methodCall[0]);
-        $this->assertEquals($arguments, $methodCall[1]);
+        self::assertSame($method, $methodCall[0]);
+        self::assertEquals($arguments, $methodCall[1]);
     }
 }

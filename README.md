@@ -1,31 +1,28 @@
-Behat Api Context Bundle
-=================================
+# Behat Api Context Bundle
 
 | Version | Build Status | Code Coverage |
 |:---------:|:-------------:|:-----:|
-| `master`| [![CI][master Build Status Image]][master Build Status] | [![Coverage Status][master Code Coverage Image]][master Code Coverage] |
-| `develop`| [![CI][develop Build Status Image]][develop Build Status] | [![Coverage Status][develop Code Coverage Image]][develop Code Coverage] |
+| `master` | [![CI][master Build Status Image]][master Build Status] | [![Coverage Status][master Code Coverage Image]][master Code Coverage] |
+| `develop` | [![CI][develop Build Status Image]][develop Build Status] | [![Coverage Status][develop Code Coverage Image]][develop Code Coverage] |
 
-Installation
-============
+## Installation
 
-Step 1: Download the Bundle
-----------------------------------
+### Step 1: Download the Bundle
+
 Open a command console, enter your project directory and execute:
 
-###  Applications that use Symfony Flex [in progress](https://github.com/MacPaw/BehatRedisContext/issues/2)
+#### Applications that use Symfony Flex [in progress](https://github.com/MacPaw/BehatRedisContext/issues/2)
 
-```console
-$ composer require --dev macpaw/behat-api-context
+```bash
+composer require --dev macpaw/behat-api-context
 ```
 
-### Applications that don't use Symfony Flex
+#### Applications that don't use Symfony Flex
 
-Open a command console, enter your project directory and execute the
-following command to download the latest stable version of this bundle:
+Open a command console, enter your project directory and execute the following command to download the latest stable version of this bundle:
 
-```console
-$ composer require --dev macpaw/behat-api-context
+```bash
+composer require --dev macpaw/behat-api-context
 ```
 
 This command requires you to have Composer installed globally, as explained
@@ -57,9 +54,11 @@ class AppKernel extends Kernel
 }
 ```
 
-Step 2: Configure Behat
-=============
-Go to `behat.yml`
+---
+
+## Step 2: Configure Behat
+
+Go to `behat.yml`:
 
 ```yaml
 # ...
@@ -68,7 +67,16 @@ Go to `behat.yml`
 # ...
 ```
 
-If you want use orm context add to `behat.yml`
+### Optional: Enable ORMContext
+
+If you want to use `ORMContext`, you need to have `doctrine/orm` installed:
+
+```bash
+composer require --dev doctrine/orm
+```
+
+Then, update your `behat.yml`:
+
 ```yaml
 # ...
   contexts:
@@ -76,37 +84,75 @@ If you want use orm context add to `behat.yml`
 # ...
 ```
 
-Usage 
-=============
+---
 
-Runnable request parameters
-----------------------------------
-Main use case when tests need to use current date.
-Instead of static data in some `testCaseName.feature`, like this:
-```feature
+## Configuration
+
+By default, the bundle has the following configuration:
+
+```yaml
+behat_api_context:
+  kernel_reset_managers: []
+  use_orm_context: true
+```
+
+| ORM Installed | Default `use_orm_context` |
+|:-------------:|:-------------------------:|
+| Yes           | `true`                    |
+| No            | `false`                   |
+
+You can override it manually in your `config/packages/test/behat_api_context.yaml`:
+
+```yaml
+behat_api_context:
+  use_orm_context: false
+```
+
+or
+
+```yaml
+behat_api_context:
+  use_orm_context: true
+```
+
+depending on your needs.
+
+---
+
+# Usage
+
+### Runnable request parameters
+
+Main use case when tests need to use the current date.  
+Instead of static data in some `.feature` file like this:
+
+```gherkin
 """
 {
     "dateTo": 1680360081,
-    "dateFrom": 1680532881,
+    "dateFrom": 1680532881
 }
 """
 ```
-Can use, for example:
-```feature
+
+You can use dynamic expressions:
+
+```gherkin
 """
 {
     "dateTo": "<(new DateTimeImmutable())->add(new DateInterval('P6D'))->getTimeStamp()>",
-    "dateFrom": "<(new DateTimeImmutable())->add(new DateInterval('P2D'))->getTimeStamp()>",
+    "dateFrom": "<(new DateTimeImmutable())->add(new DateInterval('P2D'))->getTimeStamp()>"
 }
 """
 ```
 
-#### To accomplish this, several conditions must be met:
-- Runnable code must be a string and placed in `<>`
-- Should not add `return` keyword at the beginning, otherwise will get RuntimeException
-- Should not add `;` keyword at the end, otherwise will get RuntimeException
-- Should not use the code that returns `null`, otherwise will get RuntimeException
+#### To achieve this, several conditions must be met:
+- Runnable code must be a string and placed inside `<>`.
+- Do not add `return` keyword at the beginning, otherwise a `RuntimeException` will be thrown.
+- Do not add `;` at the end of the expression, otherwise a `RuntimeException` will be thrown.
+- Avoid code that returns `null`, otherwise a `RuntimeException` will be thrown.
 
+---
 
 [master Build Status]: https://github.com/macpaw/behat-api-context/actions?query=workflow%3ACI+branch%3Amaster
 [master Build Status Image]: https://github.com/macpaw/behat-api-context/workflows/CI/badge.svg?branch=master

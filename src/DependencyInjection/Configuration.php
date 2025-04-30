@@ -36,10 +36,6 @@ class Configuration implements ConfigurationInterface
 
     private function checkOrmContextDefValue(): bool
     {
-        if (!InstalledVersions::getVersion('doctine/orm')) {
-            return false;
-        }
-
-        return true;
+        return InstalledVersions::isInstalled('doctrine/orm');
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BehatApiContext\DependencyInjection;
 
-use BehatApiContext\Context\ApiContext;
 use BehatApiContext\Context\ORMContext;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -26,7 +25,7 @@ class BehatApiContextExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->loadApiContext($config, $loader, $container);
-        $this->disableOrmContext($config, $container);
+        $this->loadOrmContext($config, $loader, $container);
     }
 
     /**
@@ -37,14 +36,33 @@ class BehatApiContextExtension extends Extension
         XmlFileLoader $loader,
         ContainerBuilder $container
     ): void {
-        $loader->load('api_context.xml');
+        $this->safeLoad($loader, 'api_context.xml');
+    }
+
+    /**
+     * @param array<array> $config
+     */
+    private function loadOrmContext(
+        array $config,
+        XmlFileLoader $loader,
+        ContainerBuilder $container
+    ): void {
+        $this->safeLoad($loader, 'orm_context.xml');
+
+        $useOrmContext = $config['use_orm_context'] ?? true;
+
+        if (!$useOrmContext) {
+            $container->removeDefinition(ORMContext::class);
+
+            return;
+        }
 
         if (isset($config['kernel_reset_managers'])) {
-            $apiContextDefinition = $container->findDefinition(ApiContext::class);
+            $ormContextDefinition = $container->findDefinition(ORMContext::class);
             foreach ($config['kernel_reset_managers'] as $resetManager) {
                 $resetManagerDefinition = $container->findDefinition($resetManager);
 
-                $apiContextDefinition->addMethodCall(
+                $ormContextDefinition->addMethodCall(
                     'addKernelResetManager',
                     [$resetManagerDefinition],
                 );
@@ -52,14 +70,8 @@ class BehatApiContextExtension extends Extension
         }
     }
 
-    private function disableOrmContext(array $config, ContainerBuilder $container): void
+    private function safeLoad(XmlFileLoader $loader, string $file): void
     {
-        $config['use_orm_context'] = $config['use_orm_context'] ?? true;
-
-        if ($config['use_orm_context']) {
-            return;
-        }
-
-        $container->removeDefinition(ORMContext::class);
+        $loader->load($file);
     }
 }
