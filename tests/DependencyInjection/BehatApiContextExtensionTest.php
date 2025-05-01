@@ -13,27 +13,22 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
-class BehatApiContextExtensionTest extends TestCase
+final class BehatApiContextExtensionTest extends TestCase
 {
     public function testWithEmptyConfig(): void
     {
         $container = $this->createContainerFromFixture('empty_bundle_config');
-
         $apiContextDefinition = $container->getDefinition(ApiContext::class);
-
-        $methodCalls = $apiContextDefinition->getMethodCalls();
-        self::assertCount(0, $methodCalls);
+        self::assertCount(0, $apiContextDefinition->getMethodCalls());
     }
 
     public function testWithFilledConfig(): void
     {
         $container = $this->createContainerFromFixture('filled_bundle_config');
-        $apiContextDefinition = $container->getDefinition(ApiContext::class);
-
-        $methodCalls = $apiContextDefinition->getMethodCalls();
-
         self::assertFalse($container->hasDefinition(ORMContext::class));
-        self::assertCount(0, $methodCalls);
+
+        $apiContextDefinition = $container->getDefinition(ApiContext::class);
+        self::assertCount(0, $apiContextDefinition->getMethodCalls());
     }
 
     public function testWithOrmContextEnabled(): void
@@ -46,7 +41,6 @@ class BehatApiContextExtensionTest extends TestCase
         $doctrineResetManagerDefinition = $container->getDefinition(DoctrineResetManager::class);
 
         $methodCalls = $ormContextDefinition->getMethodCalls();
-
         $this->assertDefinitionMethodCall(
             $methodCalls[0],
             'addKernelResetManager',
@@ -57,13 +51,7 @@ class BehatApiContextExtensionTest extends TestCase
     public function testWithOrmContextDisabled(): void
     {
         $container = $this->createContainerFromFixture('without_orm_context');
-
-        $this->assertFalse($container->hasDefinition(ORMContext::class));
-
-        $apiContextDefinition = $container->getDefinition(ApiContext::class);
-        $methodCalls = $apiContextDefinition->getMethodCalls();
-
-        $this->assertCount(0, $methodCalls);
+        self::assertFalse($container->hasDefinition(ORMContext::class));
     }
 
     private function createContainerFromFixture(string $fixtureFile): ContainerBuilder
@@ -76,15 +64,13 @@ class BehatApiContextExtensionTest extends TestCase
         $container->getCompilerPassConfig()->setAfterRemovingPasses([]);
 
         $this->loadFixture($container, $fixtureFile);
-
         $container->loadFromExtension('behat_api_context');
-
         $container->compile();
 
         return $container;
     }
 
-    protected function loadFixture(ContainerBuilder $container, string $fixtureFile): void
+    private function loadFixture(ContainerBuilder $container, string $fixtureFile): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/Fixtures'));
         $loader->load($fixtureFile . '.yaml');

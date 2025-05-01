@@ -70,11 +70,12 @@ final class ConfigurationTest extends TestCase
 
                 $root
                     ->arrayNode('kernel_reset_managers')
-                    ->scalarPrototype()->end()
+                        ->scalarPrototype()
+                        ->end()
                     ->end()
                     ->booleanNode('use_orm_context')
-                    ->defaultValue(false)
-                    ->end()
+                        ->defaultValue(false)
+                        ->end()
                     ->end();
 
                 return $treeBuilder;

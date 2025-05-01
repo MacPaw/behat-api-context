@@ -47,26 +47,34 @@ class BehatApiContextExtension extends Extension
         XmlFileLoader $loader,
         ContainerBuilder $container
     ): void {
-        $this->safeLoad($loader, 'orm_context.xml');
-
-        $useOrmContext = $config['use_orm_context'] ?? true;
-
-        if (!$useOrmContext) {
-            $container->removeDefinition(ORMContext::class);
-
+        if (!($config['use_orm_context'] ?? true)) {
             return;
         }
 
-        if (isset($config['kernel_reset_managers'])) {
-            $ormContextDefinition = $container->findDefinition(ORMContext::class);
-            foreach ($config['kernel_reset_managers'] as $resetManager) {
-                $resetManagerDefinition = $container->findDefinition($resetManager);
+        $this->safeLoad($loader, 'orm_context.xml');
 
-                $ormContextDefinition->addMethodCall(
-                    'addKernelResetManager',
-                    [$resetManagerDefinition],
-                );
-            }
+        $this->configureKernelResetManagers(
+            $config,
+            $container,
+            ORMContext::class
+        );
+    }
+
+    private function configureKernelResetManagers(
+        array $config,
+        ContainerBuilder $container,
+        string $contextClass
+    ): void {
+        if (empty($config['kernel_reset_managers'])) {
+            return;
+        }
+
+        $contextDefinition = $container->findDefinition($contextClass);
+
+        foreach ($config['kernel_reset_managers'] as $resetManager) {
+            $resetManagerDefinition = $container->findDefinition($resetManager);
+
+            $contextDefinition->addMethodCall('addKernelResetManager', [$resetManagerDefinition]);
         }
     }
 
