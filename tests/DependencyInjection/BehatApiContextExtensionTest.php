@@ -54,6 +54,18 @@ final class BehatApiContextExtensionTest extends TestCase
         self::assertFalse($container->hasDefinition(ORMContext::class));
     }
 
+    public function testWithOrmContextButWithoutResetManagers(): void
+    {
+        $container = $this->createContainerFromFixture('with_orm_context_without_reset_managers');
+
+        self::assertTrue($container->hasDefinition(ORMContext::class));
+
+        $ormContextDefinition = $container->getDefinition(ORMContext::class);
+        $methodCalls = $ormContextDefinition->getMethodCalls();
+
+        self::assertCount(0, $methodCalls);
+    }
+
     private function createContainerFromFixture(string $fixtureFile): ContainerBuilder
     {
         $container = new ContainerBuilder();
