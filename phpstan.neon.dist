@@ -3,7 +3,6 @@ parameters:
     paths:
         - src
     level: max
-    checkMissingIterableValueType: false
     checkExplicitMixed: false
     ignoreErrors:
         -
@@ -34,3 +33,5 @@ parameters:
             message: '#Call to an undefined method object::getConnection().*#'
             count: 1
             path: ./src/Service/ResetManager/DoctrineResetManager
+        -
+            identifier: missingType.iterableValue
