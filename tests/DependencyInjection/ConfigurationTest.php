@@ -7,6 +7,7 @@ namespace BehatApiContext\Tests\DependencyInjection;
 use BehatApiContext\DependencyInjection\Configuration;
 use BehatApiContext\Service\ResetManager\DoctrineResetManager;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
 
 final class ConfigurationTest extends TestCase
@@ -59,10 +60,41 @@ final class ConfigurationTest extends TestCase
         $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration($config));
     }
 
-    private function processConfiguration(array $configuration): array
+    public function testProcessConfigurationWithoutDoctrineOrm(): void
+    {
+        $configuration = new class extends Configuration {
+            public function getConfigTreeBuilder(): TreeBuilder
+            {
+                $treeBuilder = new TreeBuilder('behat_api_context');
+                $root = $treeBuilder->getRootNode()->children();
+
+                $root
+                    ->arrayNode('kernel_reset_managers')
+                        ->scalarPrototype()
+                        ->end()
+                    ->end()
+                    ->booleanNode('use_orm_context')
+                        ->defaultValue(false)
+                        ->end()
+                    ->end();
+
+                return $treeBuilder;
+            }
+        };
+
+        $expected = [
+            'kernel_reset_managers' => [],
+            'use_orm_context' => false,
+        ];
+
+        $this->assertSame($expected, $this->processConfiguration([], $configuration));
+    }
+
+    private function processConfiguration(array $configuration, ?Configuration $configObject = null): array
     {
         $processor = new Processor();
+        $configurationObject = $configObject ?? new Configuration();
 
-        return $processor->processConfiguration(new Configuration(), $configuration);
+        return $processor->processConfiguration($configurationObject, $configuration);
     }
 }
