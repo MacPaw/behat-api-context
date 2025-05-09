@@ -92,30 +92,17 @@ By default, the bundle has the following configuration:
 
 ```yaml
 behat_api_context:
-  kernel_reset_managers: []
-  use_orm_context: true
+  kernel_reset_managers:
+    - BehatApiContext\Service\ResetManager\DoctrineResetManager
 ```
+
+The `use_orm_context` parameter is no longer configurable manually. Its value is determined automatically based on whether the Doctrine ORM is installed:
+> **Important:** This logic is applied internally and cannot be overridden via configuration.
 
 | ORM Installed | Default `use_orm_context` |
 |:-------------:|:-------------------------:|
 | Yes           | `true`                    |
 | No            | `false`                   |
-
-You can override it manually in your `config/packages/test/behat_api_context.yaml`:
-
-```yaml
-behat_api_context:
-  use_orm_context: false
-```
-
-or
-
-```yaml
-behat_api_context:
-  use_orm_context: true
-```
-
-depending on your needs.
 
 ---
 
