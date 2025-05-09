@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BehatApiContext\DependencyInjection;
 
-use BehatApiContext\Context\ORMContext;
+use BehatApiContext\Context\ApiContext;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -56,7 +56,7 @@ class BehatApiContextExtension extends Extension
         $this->configureKernelResetManagers(
             $config,
             $container,
-            ORMContext::class
+            ApiContext::class
         );
     }
 

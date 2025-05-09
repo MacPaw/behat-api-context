@@ -69,6 +69,7 @@ final class ORMContext implements Context
      */
     private function seeInRepository(int $count, string $entityClass, ?array $params = null): void
     {
+        /** @var class-string $entityClass */
         $query = $this->manager->createQueryBuilder()
             ->from($entityClass, 'e')
             ->select('count(e)');

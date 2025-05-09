@@ -37,7 +37,7 @@ final class BehatApiContextExtensionTest extends TestCase
 
         self::assertTrue($container->hasDefinition(ORMContext::class));
 
-        $ormContextDefinition = $container->getDefinition(ORMContext::class);
+        $ormContextDefinition = $container->getDefinition(ApiContext::class);
         $doctrineResetManagerDefinition = $container->getDefinition(DoctrineResetManager::class);
 
         $methodCalls = $ormContextDefinition->getMethodCalls();
