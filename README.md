@@ -55,6 +55,11 @@ default:
 
 > If you also want to use `ORMContext`, install [macpaw/behat-orm-context](https://github.com/macpaw/behat-orm-context) and follow its setup instructions.
 
+> 📄 **Migration Notice:** `OrmContext` will be removed from `behat-api-context` in the next major release.
+> Please migrate to [`behat-orm-context`](https://github.com/macpaw/behat-orm-context) to avoid test failures.
+> See the full [ORMContext Migration Plan](./docs/ormcontext-migration.md) for step-by-step instructions.
+
+
 ---
 
 ## Configuration
