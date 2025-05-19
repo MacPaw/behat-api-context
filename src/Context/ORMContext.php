@@ -20,7 +20,7 @@ final class ORMContext implements Context
 
     public function __construct(EntityManagerInterface $manager)
     {
-        @trigger_error(
+        trigger_error(
             'BehatApiContext\ORMContext is deprecated since version 1.4.0 and will be removed in 2.0. '
             . 'Please use macpaw/behat-orm-context instead: https://github.com/MacPaw/behat-orm-context',
             E_USER_DEPRECATED

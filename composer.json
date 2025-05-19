@@ -81,7 +81,7 @@
             "@show-deprecation"
         ],
         "show-deprecation": [
-            "@php -r \"echo '\\n[DEPRECATED] ORMContext has been removed from this package. Use macpaw/behat-orm-context instead.\\n';\""
+            "@php -r \"echo '[DEPRECATED] ORMContext has been removed from this package. Use macpaw/behat-orm-context instead.';\""
         ]
     },
     "config": {
