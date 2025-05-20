@@ -1,4 +1,0 @@
-behat_api_context:
-  use_orm_context: false
-  kernel_reset_managers:
-    - BehatApiContext\Service\ResetManager\DoctrineResetManager

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BehatApiContext\Tests\DependencyInjection;
 
 use BehatApiContext\Context\ApiContext;
-use BehatApiContext\Context\ORMContext;
 use BehatApiContext\DependencyInjection\BehatApiContextExtension;
 use BehatApiContext\Service\ResetManager\DoctrineResetManager;
 use PHPUnit\Framework\TestCase;
@@ -25,45 +24,18 @@ final class BehatApiContextExtensionTest extends TestCase
     public function testWithFilledConfig(): void
     {
         $container = $this->createContainerFromFixture('filled_bundle_config');
-        self::assertFalse($container->hasDefinition(ORMContext::class));
 
         $apiContextDefinition = $container->getDefinition(ApiContext::class);
-        self::assertCount(0, $apiContextDefinition->getMethodCalls());
-    }
-
-    public function testWithOrmContextEnabled(): void
-    {
-        $container = $this->createContainerFromFixture('with_orm_context');
-
-        self::assertTrue($container->hasDefinition(ORMContext::class));
-
-        $ormContextDefinition = $container->getDefinition(ApiContext::class);
         $doctrineResetManagerDefinition = $container->getDefinition(DoctrineResetManager::class);
 
-        $methodCalls = $ormContextDefinition->getMethodCalls();
+        $methodCalls = $apiContextDefinition->getMethodCalls();
         $this->assertDefinitionMethodCall(
             $methodCalls[0],
             'addKernelResetManager',
             [$doctrineResetManagerDefinition]
         );
-    }
 
-    public function testWithOrmContextDisabled(): void
-    {
-        $container = $this->createContainerFromFixture('without_orm_context');
-        self::assertFalse($container->hasDefinition(ORMContext::class));
-    }
-
-    public function testWithOrmContextButWithoutResetManagers(): void
-    {
-        $container = $this->createContainerFromFixture('with_orm_context_without_reset_managers');
-
-        self::assertTrue($container->hasDefinition(ORMContext::class));
-
-        $ormContextDefinition = $container->getDefinition(ORMContext::class);
-        $methodCalls = $ormContextDefinition->getMethodCalls();
-
-        self::assertCount(0, $methodCalls);
+        self::assertCount(1, $apiContextDefinition->getMethodCalls());
     }
 
     private function createContainerFromFixture(string $fixtureFile): ContainerBuilder

@@ -25,7 +25,6 @@ class BehatApiContextExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->loadApiContext($config, $loader, $container);
-        $this->loadOrmContext($config, $loader, $container);
     }
 
     /**
@@ -37,21 +36,6 @@ class BehatApiContextExtension extends Extension
         ContainerBuilder $container
     ): void {
         $this->safeLoad($loader, 'api_context.xml');
-    }
-
-    /**
-     * @param array<array> $config
-     */
-    private function loadOrmContext(
-        array $config,
-        XmlFileLoader $loader,
-        ContainerBuilder $container
-    ): void {
-        if (!($config['use_orm_context'] ?? true)) {
-            return;
-        }
-
-        $this->safeLoad($loader, 'orm_context.xml');
 
         $this->configureKernelResetManagers(
             $config,
