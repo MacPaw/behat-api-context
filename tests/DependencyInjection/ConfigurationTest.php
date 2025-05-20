@@ -16,7 +16,6 @@ final class ConfigurationTest extends TestCase
     {
         $expectedBundleDefaultConfig = [
             'kernel_reset_managers' => [],
-            'use_orm_context' => true,
         ];
 
         $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration([]));
@@ -27,13 +26,11 @@ final class ConfigurationTest extends TestCase
         $config = [
             'behat_api_context' => [
                 'kernel_reset_managers' => [],
-                'use_orm_context' => true,
             ]
         ];
 
         $expectedBundleDefaultConfig = [
             'kernel_reset_managers' => [],
-            'use_orm_context' => true,
         ];
 
         $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration($config));
@@ -46,7 +43,6 @@ final class ConfigurationTest extends TestCase
                 'kernel_reset_managers' => [
                     DoctrineResetManager::class
                 ],
-                'use_orm_context' => true,
             ]
         ];
 
@@ -54,13 +50,12 @@ final class ConfigurationTest extends TestCase
             'kernel_reset_managers' => [
                 DoctrineResetManager::class
             ],
-            'use_orm_context' => true,
         ];
 
         $this->assertSame($expectedBundleDefaultConfig, $this->processConfiguration($config));
     }
 
-    public function testProcessConfigurationWithoutDoctrineOrm(): void
+    public function testProcessConfiguration(): void
     {
         $configuration = new class extends Configuration {
             public function getConfigTreeBuilder(): TreeBuilder
@@ -73,9 +68,6 @@ final class ConfigurationTest extends TestCase
                         ->scalarPrototype()
                         ->end()
                     ->end()
-                    ->booleanNode('use_orm_context')
-                        ->defaultValue(false)
-                        ->end()
                     ->end();
 
                 return $treeBuilder;
@@ -84,7 +76,6 @@ final class ConfigurationTest extends TestCase
 
         $expected = [
             'kernel_reset_managers' => [],
-            'use_orm_context' => false,
         ];
 
         $this->assertSame($expected, $this->processConfiguration([], $configuration));
