@@ -55,6 +55,12 @@
             "BehatApiContext\\Tests\\": "tests"
         }
     },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        },
+        "deprecated": "The ORMContext has been removed from this package. Please use macpaw/behat-orm-context instead."
+    },
     "scripts": {
         "composer-validate": "composer validate",
         "phpstan": "./vendor/bin/phpstan analyse -l max",
@@ -67,6 +73,15 @@
             "@phpstan",
             "@code-style",
             "@phpunit"
+        ],
+        "post-install-cmd": [
+            "@show-deprecation"
+        ],
+        "post-update-cmd": [
+            "@show-deprecation"
+        ],
+        "show-deprecation": [
+            "@php -r \"echo '[DEPRECATED] ORMContext has been removed from this package. Use macpaw/behat-orm-context instead.';\""
         ]
     },
     "config": {
