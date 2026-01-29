@@ -130,19 +130,32 @@ class ApiContext implements Context
         $routeParams = $this->popRouteAttributesFromRequestParams($route, $this->requestParams);
         $postFields = [];
         $queryString = '';
+        $content = null;
 
         $url = $this->router->generate($route, $routeParams);
-        $url = preg_replace('|^/app[^\.]*\.php|', '', $url);
+        $url = preg_replace('|^/app[^.]*\.php|', '', $url);
 
         if (Request::METHOD_GET === $method) {
             $queryString = http_build_query($this->requestParams);
         }
 
         if (in_array($method, [Request::METHOD_POST, Request::METHOD_PATCH, Request::METHOD_PUT], true)) {
-            $postFields = $this->requestParams;
+            $isJsonRequest = array_key_exists('Content-Type', $this->headers) &&
+                str_contains(strtolower($this->headers['Content-Type']), 'application/json');
+
+            if ($isJsonRequest) {
+                $content = json_encode($this->requestParams, JSON_THROW_ON_ERROR);
+            } else {
+                $postFields = $this->requestParams;
+            }
         }
 
-        $request = Request::create($url . '?' . $queryString, $method, $postFields);
+        $request = Request::create(
+            uri: $url . '?' . $queryString,
+            method: $method,
+            parameters: $postFields,
+            content: $content
+        );
         $request->headers->add($this->headers);
         $request->server->add($this->serverParams);
 
@@ -282,15 +295,20 @@ class ApiContext implements Context
         $this->compareStructureResponse($variableFields, $string, $this->getResponse()->getContent());
     }
 
-    protected function compareStructureResponse(string $variableFields, PyStringNode $string, string $actualJSON): void
-    {
+    protected function compareStructureResponse(
+        string $variableFieldsString,
+        PyStringNode $string,
+        string $actualJSON
+    ): void {
         if ($actualJSON === '') {
             throw new RuntimeException('Response is not JSON');
         }
 
-        $expectedResponse = (array) json_decode(trim($string->getRaw()), true);
-        $actualResponse = (array) json_decode($actualJSON, true);
-        $variableFields = $variableFields ? array_map('trim', explode(',', $variableFields)) : [];
+        $expectedResponse = json_decode(trim($string->getRaw()), true, 512, JSON_THROW_ON_ERROR);
+        $actualResponse = json_decode($actualJSON, true, 512, JSON_THROW_ON_ERROR);
+        $variableFields = $variableFieldsString
+            ? array_map('trim', explode(',', $variableFieldsString))
+            : [];
 
         if (!$this->similarArrayManager->isArraysSimilar($expectedResponse, $actualResponse, $variableFields)) {
             $prettyJSON = json_encode($actualResponse, JSON_PRETTY_PRINT);
@@ -343,7 +361,7 @@ class ApiContext implements Context
 
         $responseHeaderValue = $response->headers->get($givenHeaderName);
 
-        if (null === $responseHeaderValue || !substr_count($responseHeaderValue, $givenHeaderValue) > 0) {
+        if (null === $responseHeaderValue || substr_count($responseHeaderValue, $givenHeaderValue) < 1) {
             $message = sprintf(
                 'Response header %s does not match. Expected: %s, given value: %s',
                 $givenHeaderName,
