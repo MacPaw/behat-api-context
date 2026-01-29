@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BehatApiContext\Service\ResetManager;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -19,11 +20,12 @@ class DoctrineResetManager implements ResetManagerInterface
         $container = $kernel->getContainer();
 
         if ($container->hasParameter('doctrine.entity_managers')) {
-            /** @var array $entityManagers */
+            /** @var list<class-string<EntityManagerInterface>> $entityManagers */
             $entityManagers = $container->getParameter('doctrine.entity_managers');
 
             foreach ($entityManagers as $entityManagerId) {
                 if ($container->initialized($entityManagerId)) {
+                    /** @var EntityManagerInterface $em */
                     $em = $container->get($entityManagerId);
                     $em->clear();
 

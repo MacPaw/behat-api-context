@@ -1,5 +1,4 @@
 parameters:
-    excludes_analyse:
     paths:
         - src
     level: max
@@ -10,28 +9,8 @@ parameters:
             count: 3
             path: ./src/Context/ApiContext.php
         -
-            message: '#Call to an undefined method Symfony\\Component\\HttpKernel\\KernelInterface::terminate\(\).*#'
-            count: 1
-            path: ./src/Context/ApiContext.php
-        -
             message: '#Parameter \#3 \$actualJSON of method BehatApiContext\\Context\\ApiContext::compareStructureResponse\(\) expects string, string\|false given.*#'
             count: 1
             path: ./src/Context/ApiContext.php
-        -
-            message: '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeDefinition::children\(\).#'
-            count: 1
-            path: ./src/DependencyInjection
-        -
-            message: '#.*NodeParentInterface|null.*#'
-            count: 1
-            path: ./src/DependencyInjection
-        -
-            message: '#Call to an undefined method object::clear().*#'
-            count: 1
-            path: ./src/Service/ResetManager/DoctrineResetManager
-        -
-            message: '#Call to an undefined method object::getConnection().*#'
-            count: 1
-            path: ./src/Service/ResetManager/DoctrineResetManager
         -
             identifier: missingType.iterableValue

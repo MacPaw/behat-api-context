@@ -8,7 +8,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use ReflectionClass;
 use ReflectionException;
 
-final class GivenApiContextsTest extends AbstractApiContextTest
+final class GivenApiContextsTest extends ApiContextTestCase
 {
     /**
      * @throws ReflectionException

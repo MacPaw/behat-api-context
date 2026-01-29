@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\HttpKernel\TerminableInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Throwable;
 
@@ -23,8 +24,12 @@ class ApiContext implements Context
     private StringManager $stringManager;
     private RouterInterface $router;
     private RequestStack $requestStack;
-    private ?Response $response;
-    private KernelInterface $kernel;
+    private Response $response;
+    private KernelInterface&TerminableInterface $kernel;
+
+    /**
+     * @var list<ResetManagerInterface>
+     */
     private array $resetManagers = [];
 
     /**
@@ -38,19 +43,19 @@ class ApiContext implements Context
     protected array $serverParams = [];
 
     /**
-     * @var array<mixed> $requestParams
+     * @var array<string, mixed> $requestParams
      */
     protected array $requestParams = [];
 
     /**
-     * @var array<mixed> $savedValues
+     * @var array<string, string|list<string>> $savedValues
      */
     protected array $savedValues = [];
 
     public function __construct(
         RouterInterface $router,
         RequestStack $requestStack,
-        KernelInterface $kernel
+        KernelInterface&TerminableInterface $kernel
     ) {
         $this->router = $router;
         $this->requestStack = $requestStack;
@@ -116,8 +121,13 @@ class ApiContext implements Context
 
         $newRequestParams = (array) json_decode($processedParams, true, 512, JSON_THROW_ON_ERROR);
         $newRequestParams = $this->convertRunnableCodeParams($newRequestParams);
-        $this->requestParams = array_merge($this->requestParams, $newRequestParams);
-        $this->savedValues = array_merge($this->savedValues, $newRequestParams);
+        /** @var array<string, mixed> $requestParams */
+        $requestParams = array_merge($this->requestParams, $newRequestParams);
+        $this->requestParams = $requestParams;
+
+        /** @var array<string, mixed> $savedValues */
+        $savedValues = array_merge($this->savedValues, $newRequestParams);
+        $this->savedValues = $savedValues;
     }
 
     /**
@@ -130,19 +140,32 @@ class ApiContext implements Context
         $routeParams = $this->popRouteAttributesFromRequestParams($route, $this->requestParams);
         $postFields = [];
         $queryString = '';
+        $content = null;
 
         $url = $this->router->generate($route, $routeParams);
-        $url = preg_replace('|^/app[^\.]*\.php|', '', $url);
+        $url = preg_replace('|^/app[^.]*\.php|', '', $url);
 
         if (Request::METHOD_GET === $method) {
             $queryString = http_build_query($this->requestParams);
         }
 
         if (in_array($method, [Request::METHOD_POST, Request::METHOD_PATCH, Request::METHOD_PUT], true)) {
-            $postFields = $this->requestParams;
+            $isJsonRequest = array_key_exists('Content-Type', $this->headers) &&
+                str_contains(strtolower($this->headers['Content-Type']), 'application/json');
+
+            if ($isJsonRequest) {
+                $content = json_encode($this->requestParams, JSON_THROW_ON_ERROR);
+            } else {
+                $postFields = $this->requestParams;
+            }
         }
 
-        $request = Request::create($url . '?' . $queryString, $method, $postFields);
+        $request = Request::create(
+            uri: $url . '?' . $queryString,
+            method: $method,
+            parameters: $postFields,
+            content: $content
+        );
         $request->headers->add($this->headers);
         $request->server->add($this->serverParams);
 
@@ -171,19 +194,21 @@ class ApiContext implements Context
     }
 
     /**
-     * @param array<string,string> $requestParams
+     * @param array<string, mixed> $requestParams
      *
-     * @return array<string,string>
+     * @return array<string, mixed>
      */
     private function popRouteAttributesFromRequestParams(string $route, array &$requestParams): array
     {
         $routeParams = [];
+        $routeDecl = $this->router->getRouteCollection()->get($route);
 
-        if (is_array($requestParams) && ($routeDecl = $this->router->getRouteCollection()->get($route))) {
+        if ($routeDecl !== null) {
+            /** @var array<string, string> $requirements */
             $requirements = $routeDecl->getRequirements();
 
             foreach ($requirements as $attribute => $requirement) {
-                if (isset($requestParams[$attribute]) && strpos($attribute, '_') !== 0) {
+                if (isset($requestParams[$attribute]) && !str_starts_with($attribute, '_')) {
                     $routeParams[$attribute] = $requestParams[$attribute];
                     unset($requestParams[$attribute]);
                 }
@@ -282,15 +307,20 @@ class ApiContext implements Context
         $this->compareStructureResponse($variableFields, $string, $this->getResponse()->getContent());
     }
 
-    protected function compareStructureResponse(string $variableFields, PyStringNode $string, string $actualJSON): void
-    {
+    protected function compareStructureResponse(
+        string $variableFieldsString,
+        PyStringNode $string,
+        string $actualJSON
+    ): void {
         if ($actualJSON === '') {
             throw new RuntimeException('Response is not JSON');
         }
 
-        $expectedResponse = (array) json_decode(trim($string->getRaw()), true);
-        $actualResponse = (array) json_decode($actualJSON, true);
-        $variableFields = $variableFields ? array_map('trim', explode(',', $variableFields)) : [];
+        $expectedResponse = json_decode(trim($string->getRaw()), true, 512, JSON_THROW_ON_ERROR);
+        $actualResponse = json_decode($actualJSON, true, 512, JSON_THROW_ON_ERROR);
+        $variableFields = $variableFieldsString
+            ? array_map('trim', explode(',', $variableFieldsString))
+            : [];
 
         if (!$this->similarArrayManager->isArraysSimilar($expectedResponse, $actualResponse, $variableFields)) {
             $prettyJSON = json_encode($actualResponse, JSON_PRETTY_PRINT);
@@ -343,7 +373,7 @@ class ApiContext implements Context
 
         $responseHeaderValue = $response->headers->get($givenHeaderName);
 
-        if (null === $responseHeaderValue || !substr_count($responseHeaderValue, $givenHeaderValue) > 0) {
+        if (null === $responseHeaderValue || substr_count($responseHeaderValue, $givenHeaderValue) < 1) {
             $message = sprintf(
                 'Response header %s does not match. Expected: %s, given value: %s',
                 $givenHeaderName,
@@ -413,10 +443,6 @@ class ApiContext implements Context
 
     protected function getResponse(): Response
     {
-        if ($this->response === null) {
-            throw new RuntimeException('Response is null.');
-        }
-
         return $this->response;
     }
 

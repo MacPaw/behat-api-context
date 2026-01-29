@@ -9,7 +9,7 @@ use ReflectionException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
-final class WhenSendRequestToRouteApiContextsTest extends AbstractApiContextTest
+final class WhenSendRequestToRouteApiContextsTest extends ApiContextTestCase
 {
     /**
      * @throws ReflectionException
