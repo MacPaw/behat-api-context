@@ -58,7 +58,7 @@
         "phpstan": "./vendor/bin/phpstan analyse -l max",
         "code-style": "./vendor/bin/phpcs",
         "code-style-fix": "./vendor/bin/phpcbf",
-        "phpunit": "./vendor/bin/phpunit",
+        "phpunit": "./vendor/bin/phpunit --no-coverage",
         "phpunit-html-coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-html=coverage",
         "dev-checks": [
             "composer validate",
