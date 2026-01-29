@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\HttpKernel\TerminableInterface;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -29,7 +30,7 @@ final class WhenApiContextsTest extends AbstractApiContextTest
             ['id' => '\d+'],
         );
 
-        if ('testExceptionWhenRouteNotFound' === $this->getName()) {
+        if ('testExceptionWhenRouteNotFound' === $this->name()) {
             $this->invalidRouteMock = true;
         }
 
@@ -71,7 +72,7 @@ final class WhenApiContextsTest extends AbstractApiContextTest
         return $router;
     }
 
-    protected function getKernelMock(): KernelInterface
+    protected function getKernelMock(): KernelInterface&TerminableInterface
     {
         $kernel = $this->createMock(Kernel::class);
 

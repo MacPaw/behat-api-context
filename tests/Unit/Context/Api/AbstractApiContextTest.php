@@ -8,6 +8,7 @@ use BehatApiContext\Context\ApiContext;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\HttpKernel\TerminableInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 abstract class AbstractApiContextTest extends TestCase
@@ -31,10 +32,9 @@ abstract class AbstractApiContextTest extends TestCase
         return $routerMock;
     }
 
-    protected function getKernelMock(): KernelInterface
+    protected function getKernelMock(): KernelInterface&TerminableInterface
     {
-        $kernel = $this->createMock(KernelInterface::class);
-        assert($kernel instanceof KernelInterface);
+        $kernel = $this->createMockForIntersectionOfInterfaces([KernelInterface::class, TerminableInterface::class]);
 
         return $kernel;
     }
