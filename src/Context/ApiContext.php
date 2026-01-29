@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\HttpKernel\TerminableInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Throwable;
 
@@ -23,8 +24,12 @@ class ApiContext implements Context
     private StringManager $stringManager;
     private RouterInterface $router;
     private RequestStack $requestStack;
-    private ?Response $response;
-    private KernelInterface $kernel;
+    private Response $response;
+    private KernelInterface&TerminableInterface $kernel;
+
+    /**
+     * @var list<ResetManagerInterface>
+     */
     private array $resetManagers = [];
 
     /**
@@ -38,19 +43,19 @@ class ApiContext implements Context
     protected array $serverParams = [];
 
     /**
-     * @var array<mixed> $requestParams
+     * @var array<string, mixed> $requestParams
      */
     protected array $requestParams = [];
 
     /**
-     * @var array<mixed> $savedValues
+     * @var array<string, string|list<string>> $savedValues
      */
     protected array $savedValues = [];
 
     public function __construct(
         RouterInterface $router,
         RequestStack $requestStack,
-        KernelInterface $kernel
+        KernelInterface&TerminableInterface $kernel
     ) {
         $this->router = $router;
         $this->requestStack = $requestStack;
@@ -116,8 +121,13 @@ class ApiContext implements Context
 
         $newRequestParams = (array) json_decode($processedParams, true, 512, JSON_THROW_ON_ERROR);
         $newRequestParams = $this->convertRunnableCodeParams($newRequestParams);
-        $this->requestParams = array_merge($this->requestParams, $newRequestParams);
-        $this->savedValues = array_merge($this->savedValues, $newRequestParams);
+        /** @var array<string, mixed> $requestParams */
+        $requestParams = array_merge($this->requestParams, $newRequestParams);
+        $this->requestParams = $requestParams;
+
+        /** @var array<string, mixed> $savedValues */
+        $savedValues = array_merge($this->savedValues, $newRequestParams);
+        $this->savedValues = $savedValues;
     }
 
     /**
@@ -184,19 +194,21 @@ class ApiContext implements Context
     }
 
     /**
-     * @param array<string,string> $requestParams
+     * @param array<string, mixed> $requestParams
      *
-     * @return array<string,string>
+     * @return array<string, mixed>
      */
     private function popRouteAttributesFromRequestParams(string $route, array &$requestParams): array
     {
         $routeParams = [];
+        $routeDecl = $this->router->getRouteCollection()->get($route);
 
-        if (is_array($requestParams) && ($routeDecl = $this->router->getRouteCollection()->get($route))) {
+        if ($routeDecl !== null) {
+            /** @var array<string, string> $requirements */
             $requirements = $routeDecl->getRequirements();
 
             foreach ($requirements as $attribute => $requirement) {
-                if (isset($requestParams[$attribute]) && strpos($attribute, '_') !== 0) {
+                if (isset($requestParams[$attribute]) && !str_starts_with($attribute, '_')) {
                     $routeParams[$attribute] = $requestParams[$attribute];
                     unset($requestParams[$attribute]);
                 }
@@ -431,10 +443,6 @@ class ApiContext implements Context
 
     protected function getResponse(): Response
     {
-        if ($this->response === null) {
-            throw new RuntimeException('Response is null.');
-        }
-
         return $this->response;
     }
 

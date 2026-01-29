@@ -22,11 +22,11 @@ jobs:
                     - php: '8.1'
                       symfony-versions: '7.1.*'
                 include:
-                    - php: '8.0'
+                    - php: '8.1'
                       symfony-versions: '^5.4'
                       coverage: 'none'
                     - description: 'Log Code Coverage'
-                      php: '8.2'
+                      php: '8.4'
                       coverage: 'xdebug'
                       symfony-versions: '^7.1'
 
@@ -71,9 +71,6 @@ jobs:
 
             - name: Install dependencies
               run: composer install
-
-            - name: Add doctrine/orm
-              run: composer require --no-progress --no-interaction --prefer-dist doctrine/orm:^2.0
 
             - name: Run PHPUnit tests
               run: composer phpunit
