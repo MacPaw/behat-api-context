@@ -25,7 +25,7 @@ class ApiContext implements Context
     private RouterInterface $router;
     private RequestStack $requestStack;
     private Response $response;
-    private KernelInterface&TerminableInterface $kernel;
+    private KernelInterface $kernel;
 
     /**
      * @var list<ResetManagerInterface>
@@ -55,7 +55,7 @@ class ApiContext implements Context
     public function __construct(
         RouterInterface $router,
         RequestStack $requestStack,
-        KernelInterface&TerminableInterface $kernel
+        KernelInterface $kernel
     ) {
         $this->router = $router;
         $this->requestStack = $requestStack;
@@ -182,7 +182,10 @@ class ApiContext implements Context
         $response = $this->kernel->handle($request);
 
         $this->requestStack->pop();
-        $this->kernel->terminate($request, $response);
+
+        if ($this->kernel instanceof TerminableInterface) {
+            $this->kernel->terminate($request, $response);
+        }
 
         foreach ($this->resetManagers as $resetManager) {
             if ($resetManager->needsReset($request->getMethod())) {
