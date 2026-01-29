@@ -7,7 +7,7 @@ namespace BehatApiContext\Tests\Unit\Context\Api;
 use Behat\Gherkin\Node\PyStringNode;
 use RuntimeException;
 
-class ApiContextTest extends AbstractApiContextTest
+class ApiContextTest extends ApiContextTestCase
 {
     private const PARAMS_VALUES = 'paramsValues';
     private const INITIAL_PARAM_VALUE = 'initialParamValue';

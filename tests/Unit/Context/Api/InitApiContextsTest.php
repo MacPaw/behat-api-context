@@ -8,7 +8,7 @@ use BehatApiContext\Service\ResetManager\ResetManagerInterface;
 use ReflectionClass;
 use ReflectionException;
 
-final class InitApiContextsTest extends AbstractApiContextTest
+final class InitApiContextsTest extends ApiContextTestCase
 {
     /**
      * @throws ReflectionException

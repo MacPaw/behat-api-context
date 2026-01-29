@@ -7,7 +7,7 @@ namespace BehatApiContext\Tests\Unit\Context\Api;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
-final class ResponseHasHeaderTest extends AbstractApiContextTest
+final class ResponseHasHeaderTest extends ApiContextTestCase
 {
     private Response $response;
 

@@ -12,14 +12,10 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class BehatApiContextExtension extends Extension
 {
-    /**
-     * @param array<array> $configs
-     *
-     * {@inheritdoc}
-     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
+        /** @var array<string, mixed> $config */
         $config = $this->processConfiguration($configuration, $configs);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
@@ -28,7 +24,7 @@ class BehatApiContextExtension extends Extension
     }
 
     /**
-     * @param array<array> $config
+     * @param array<string, mixed> $config
      */
     private function loadApiContext(
         array $config,
@@ -44,6 +40,10 @@ class BehatApiContextExtension extends Extension
         );
     }
 
+    /**
+     * @param array<string, mixed> $config
+     * @param class-string $contextClass
+     */
     private function configureKernelResetManagers(
         array $config,
         ContainerBuilder $container,

@@ -11,16 +11,13 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
 
             - name: Install dependencies
               run: composer install --no-progress --no-interaction --prefer-dist
-
-            - name: Add doctrine/orm
-              run: composer require --no-progress --no-interaction --prefer-dist doctrine/orm:^2.0
 
             - name: Run script
               run: composer code-style
@@ -30,16 +27,13 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
 
             - name: Install dependencies
               run: composer install --no-progress --no-interaction --prefer-dist
-
-            - name: Add doctrine/orm
-              run: composer require --no-progress --no-interaction --prefer-dist doctrine/orm:^2.0
 
             - name: Run script
               run: composer phpstan
@@ -49,7 +43,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
