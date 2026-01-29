@@ -11,7 +11,7 @@ use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
-final class ThenApiContextTest extends AbstractApiContextTest
+final class ThenApiContextTest extends ApiContextTestCase
 {
     public function testResponseStatusCodeShouldBe(): void
     {

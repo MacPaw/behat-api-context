@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 
-final class WhenApiContextsTest extends AbstractApiContextTest
+final class WhenApiContextsTest extends ApiContextTestCase
 {
     private Route $route;
     private ?Request $request = null;

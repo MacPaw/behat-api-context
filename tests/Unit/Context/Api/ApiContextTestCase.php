@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-abstract class AbstractApiContextTest extends TestCase
+abstract class ApiContextTestCase extends TestCase
 {
     protected ApiContext $apiContext;
 
