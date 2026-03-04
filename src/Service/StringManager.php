@@ -11,7 +11,7 @@ class StringManager
     private const START_SEPARATOR = "{{";
     private const END_SEPARATOR = "}}";
 
-    public function substituteValues(array $substitutionArray, string $string): string
+    public function substituteValues(array $substitutionArray, int $string): string
     {
         $start = strpos($string, self::START_SEPARATOR);
 
