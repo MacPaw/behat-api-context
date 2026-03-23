@@ -25,6 +25,10 @@ jobs:
                     - php: '8.1'
                       symfony-versions: '^5.4'
                       coverage: 'none'
+                    - description: 'Symfony 8 + Behat 4.x-dev'
+                      php: '8.4'
+                      symfony-versions: '8.0.*'
+                      coverage: 'none'
                     - description: 'Log Code Coverage'
                       php: '8.4'
                       coverage: 'xdebug'
@@ -59,6 +63,10 @@ jobs:
                   path: ${{ steps.composer-cache.outputs.dir }}
                   key: ${{ runner.os }}-${{ matrix.php }}-${{ matrix.symfony-versions }}-composer-${{ hashFiles('composer.json') }}
                   restore-keys: ${{ runner.os }}-${{ matrix.php }}-${{ matrix.symfony-versions }}-composer
+
+            - name: Use Behat 4.x-dev with Symfony 8
+              if: matrix.symfony-versions == '8.0.*'
+              run: composer require behat/behat:4.x-dev --no-update --no-scripts
 
             - name: Update Symfony version
               if: matrix.symfony-versions != ''

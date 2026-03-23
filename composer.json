@@ -25,15 +25,17 @@
         }
     ],
     "license": "MIT",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "require": {
         "ext-json": "*",
         "php": "^8.1",
-        "behat/behat": "^3.0",
-        "symfony/config": "^5.4 || ^6.4 || ^7.0",
-        "symfony/dependency-injection": "^5.4.34 || ^6.4 || ^7.1",
-        "symfony/http-client": "^5.4 || ^6.4 || ^7.1",
-        "symfony/http-kernel": "^5.4 || ^6.4 || ^7.1",
-        "symfony/routing": "^5.4 || ^6.4 || ^7.1",
+        "behat/behat": "^3.0 || 4.x-dev@dev",
+        "symfony/config": "^5.4 || ^6.4 || ^7.0 || ^8.0",
+        "symfony/dependency-injection": "^5.4.34 || ^6.4 || ^7.1 || ^8.0",
+        "symfony/http-client": "^5.4 || ^6.4 || ^7.1 || ^8.0",
+        "symfony/http-kernel": "^5.4 || ^6.4 || ^7.1 || ^8.0",
+        "symfony/routing": "^5.4 || ^6.4 || ^7.1 || ^8.0",
         "macpaw/similar-arrays": "^1.0"
     },
     "require-dev": {
@@ -71,8 +73,6 @@
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
-        },
-        "platform": {
         }
     }
 }
