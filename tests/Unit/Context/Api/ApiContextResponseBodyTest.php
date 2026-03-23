@@ -6,6 +6,7 @@ namespace BehatApiContext\Tests\Unit\Context\Api;
 
 use BehatApiContext\Context\ApiContext;
 use ReflectionMethod;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ApiContextResponseBodyTest extends ApiContextTestCase
