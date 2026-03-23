@@ -358,12 +358,10 @@ final class WhenApiContextsTest extends ApiContextTestCase
             $kernel
                 ->expects($this->any())
                 ->method('terminate')
-                ->will(
-                    $this->returnCallback(function (Request $request, Response $response): void {
-                        $this->request = $request;
-                        $this->response = $response;
-                    }),
-                );
+                ->willReturnCallback(function (Request $request, Response $response): void {
+                    $this->request = $request;
+                    $this->response = $response;
+                });
         }
 
         assert($kernel instanceof KernelInterface);

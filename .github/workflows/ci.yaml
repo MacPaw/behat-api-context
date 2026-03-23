@@ -87,3 +87,21 @@ jobs:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   file: './coverage.xml'
                   fail_ci_if_error: true
+
+    prefer-lowest:
+        name: PHPUnit (composer --prefer-lowest)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.3'
+
+            - name: Install lowest compatible dependencies
+              run: composer update --prefer-lowest --no-interaction --no-progress
+
+            - name: Run PHPUnit tests
+              run: composer phpunit

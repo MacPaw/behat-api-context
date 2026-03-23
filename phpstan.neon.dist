@@ -3,6 +3,8 @@ parameters:
         - src
     level: max
     checkExplicitMixed: false
+    # Ignore rules below apply only under composer --prefer-lowest (older Symfony stubs).
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         -
             message: '#Parameter \#1 \$json of function json_decode expects string, string\|false given.*#'
@@ -14,3 +16,16 @@ parameters:
             path: ./src/Context/ApiContext.php
         -
             identifier: missingType.iterableValue
+        # Symfony Config 5.4.x (composer --prefer-lowest): root node typing differs from newer Symfony; runtime is valid.
+        -
+            message: '#NodeDefinition::children#'
+            path: ./src/DependencyInjection/Configuration.php
+        -
+            message: '#addKernelResetManagersSection\(\).*NodeBuilder,\s+mixed given#'
+            path: ./src/DependencyInjection/Configuration.php
+        -
+            message: '#NodeParentInterface\|null#'
+            path: ./src/DependencyInjection/Configuration.php
+        -
+            message: '#Cannot call method end\(\) on mixed#'
+            path: ./src/DependencyInjection/Configuration.php
