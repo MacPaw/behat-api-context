@@ -16,9 +16,12 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('behat_api_context');
         $rootNode = $treeBuilder->getRootNode();
+        // Symfony TreeBuilder root is always ArrayNodeDefinition; kept for static analysis / defensive parity.
+        // @codeCoverageIgnoreStart
         if (!$rootNode instanceof ArrayNodeDefinition) {
             throw new LogicException('Expected configuration root to be an array node.');
         }
+        // @codeCoverageIgnoreEnd
 
         $root = $rootNode->children();
 
