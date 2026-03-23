@@ -8,7 +8,7 @@ use BehatApiContext\Context\ApiContext;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 class BehatApiContextExtension extends Extension
 {
@@ -18,7 +18,7 @@ class BehatApiContextExtension extends Extension
         /** @var array<string, mixed> $config */
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->loadApiContext($config, $loader, $container);
     }
@@ -28,10 +28,10 @@ class BehatApiContextExtension extends Extension
      */
     private function loadApiContext(
         array $config,
-        XmlFileLoader $loader,
+        PhpFileLoader $loader,
         ContainerBuilder $container
     ): void {
-        $this->safeLoad($loader, 'api_context.xml');
+        $this->safeLoad($loader, 'api_context.php');
 
         $this->configureKernelResetManagers(
             $config,
@@ -62,7 +62,7 @@ class BehatApiContextExtension extends Extension
         }
     }
 
-    private function safeLoad(XmlFileLoader $loader, string $file): void
+    private function safeLoad(PhpFileLoader $loader, string $file): void
     {
         $loader->load($file);
     }
