@@ -246,10 +246,11 @@ class ApiContext implements Context
     public function responseIsJson(): void
     {
         $response = $this->getResponse();
-        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $body = $this->getResponseBody($response);
+        $data = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
 
         if (empty($data)) {
-            throw new RuntimeException("Response was not JSON\n" . $response->getContent());
+            throw new RuntimeException("Response was not JSON\n" . $body);
         }
     }
 
@@ -258,7 +259,7 @@ class ApiContext implements Context
      */
     public function responseEmpty(): void
     {
-        if (!empty($this->getResponse()->getContent())) {
+        if ($this->getResponseBody($this->getResponse()) !== '') {
             throw new RuntimeException('Content not empty');
         }
     }
@@ -271,7 +272,7 @@ class ApiContext implements Context
     public function responseShouldBeJson(PyStringNode $string): void
     {
         $expectedResponse = json_decode(trim($string->getRaw()), true, 512, JSON_THROW_ON_ERROR);
-        $actualResponse = json_decode($this->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $actualResponse = json_decode($this->getResponseBody($this->getResponse()), true, 512, JSON_THROW_ON_ERROR);
 
         if ($expectedResponse !== $actualResponse) {
             $prettyJSON = json_encode($actualResponse, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, 512);
@@ -286,7 +287,7 @@ class ApiContext implements Context
      */
     public function iGetParamFromJsonResponse(string $paramPath, string $valueKey): void
     {
-        $actualResponse = json_decode($this->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $actualResponse = json_decode($this->getResponseBody($this->getResponse()), true, 512, JSON_THROW_ON_ERROR);
         $pathKeys = explode('.', $paramPath);
 
         foreach ($pathKeys as $key) {
@@ -307,7 +308,7 @@ class ApiContext implements Context
      */
     public function responseShouldBeJsonWithVariableFields(string $variableFields, PyStringNode $string): void
     {
-        $this->compareStructureResponse($variableFields, $string, $this->getResponse()->getContent());
+        $this->compareStructureResponse($variableFields, $string, $this->getResponseBody($this->getResponse()));
     }
 
     protected function compareStructureResponse(
@@ -388,6 +389,11 @@ class ApiContext implements Context
         }
     }
 
+    /**
+     * @param array<string, mixed> $requestParams
+     *
+     * @return array<string, mixed>
+     */
     protected function convertRunnableCodeParams(array $requestParams): array
     {
         foreach ($requestParams as $key => $value) {
@@ -449,8 +455,21 @@ class ApiContext implements Context
         return $this->response;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function geRequestParams(): array
     {
         return $this->requestParams;
+    }
+
+    private function getResponseBody(Response $response): string
+    {
+        $content = $response->getContent();
+        if ($content === false) {
+            throw new RuntimeException('The response body is not available.');
+        }
+
+        return $content;
     }
 }

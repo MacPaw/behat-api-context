@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BehatApiContext\Tests\Unit\Context\Api;
 
 use Behat\Gherkin\Node\PyStringNode;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 
 class ApiContextTest extends ApiContextTestCase
@@ -12,12 +13,7 @@ class ApiContextTest extends ApiContextTestCase
     private const PARAMS_VALUES = 'paramsValues';
     private const INITIAL_PARAM_VALUE = 'initialParamValue';
 
-    /**
-     * @param PyStringNode $paramsValues
-     * @param string $initialParamValue
-     *
-     * @dataProvider getTheRequestContainsParamsSuccess
-     */
+    #[DataProvider('getTheRequestContainsParamsSuccess')]
     public function testTheRequestContainsParamsSuccess(PyStringNode $paramsValues, string $initialParamValue): void
     {
         $this->assertTrue(str_contains($paramsValues->getStrings()[3], $initialParamValue));
@@ -69,18 +65,14 @@ class ApiContextTest extends ApiContextTestCase
         );
     }
 
-    /**
-     * @param PyStringNode $paramsValues
-     *
-     * @dataProvider getTheRequestContainsParamsRuntimeException
-     */
+    #[DataProvider('getTheRequestContainsParamsRuntimeException')]
     public function testTheRequestContainsParamsRuntimeException(PyStringNode $paramsValues): void
     {
         $this->expectException(RuntimeException::class);
         $this->apiContext->theRequestContainsParams($paramsValues);
     }
 
-    public function getTheRequestContainsParamsSuccess(): array
+    public static function getTheRequestContainsParamsSuccess(): array
     {
         return [
             [
@@ -107,7 +99,7 @@ class ApiContextTest extends ApiContextTestCase
         ];
     }
 
-    public function getTheRequestContainsParamsRuntimeException(): array
+    public static function getTheRequestContainsParamsRuntimeException(): array
     {
         return [
             [
