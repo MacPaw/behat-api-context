@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BehatApiContext\DependencyInjection;
 
+use LogicException;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -13,7 +15,15 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('behat_api_context');
-        $root = $treeBuilder->getRootNode()->children();
+        $rootNode = $treeBuilder->getRootNode();
+        // Symfony TreeBuilder root is always ArrayNodeDefinition; kept for static analysis / defensive parity.
+        // @codeCoverageIgnoreStart
+        if (!$rootNode instanceof ArrayNodeDefinition) {
+            throw new LogicException('Expected configuration root to be an array node.');
+        }
+        // @codeCoverageIgnoreEnd
+
+        $root = $rootNode->children();
 
         $this->addKernelResetManagersSection($root);
 
@@ -22,10 +32,9 @@ class Configuration implements ConfigurationInterface
 
     private function addKernelResetManagersSection(NodeBuilder $builder): void
     {
-        $builder
-            ->arrayNode('kernel_reset_managers')
-                ->scalarPrototype()->end()
-            ->end()
-        ->end();
+        $kernelResetManagers = $builder->arrayNode('kernel_reset_managers');
+        $kernelResetManagers->scalarPrototype()->end();
+        $kernelResetManagers->end();
+        $builder->end();
     }
 }

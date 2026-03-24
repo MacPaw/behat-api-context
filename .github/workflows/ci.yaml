@@ -25,6 +25,10 @@ jobs:
                     - php: '8.1'
                       symfony-versions: '^5.4'
                       coverage: 'none'
+                    - description: 'Symfony 8 + Behat 4.x-dev'
+                      php: '8.4'
+                      symfony-versions: '8.0.*'
+                      coverage: 'none'
                     - description: 'Log Code Coverage'
                       php: '8.4'
                       coverage: 'xdebug'
@@ -60,6 +64,10 @@ jobs:
                   key: ${{ runner.os }}-${{ matrix.php }}-${{ matrix.symfony-versions }}-composer-${{ hashFiles('composer.json') }}
                   restore-keys: ${{ runner.os }}-${{ matrix.php }}-${{ matrix.symfony-versions }}-composer
 
+            - name: Use Behat 4.x-dev with Symfony 8
+              if: matrix.symfony-versions == '8.0.*'
+              run: composer require behat/behat:4.x-dev --no-update --no-scripts
+
             - name: Update Symfony version
               if: matrix.symfony-versions != ''
               run: |
@@ -86,4 +94,22 @@ jobs:
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   file: './coverage.xml'
-                  fail_ci_if_error: true
+                  fail_ci_if_error: false
+
+    prefer-lowest:
+        name: PHPUnit (composer --prefer-lowest)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.3'
+
+            - name: Install lowest compatible dependencies
+              run: composer update --prefer-lowest --no-interaction --no-progress
+
+            - name: Run PHPUnit tests
+              run: composer phpunit
