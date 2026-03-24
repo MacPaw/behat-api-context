@@ -6,6 +6,7 @@ namespace BehatApiContext\Tests\Unit\Service;
 
 use BehatApiContext\Service\StringManager;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ArrayManagerTest extends TestCase
@@ -21,13 +22,7 @@ class ArrayManagerTest extends TestCase
         $this->stringManager = new StringManager();
     }
 
-    /**
-     * @param array $substitutionValues
-     * @param string $initialString
-     * @param string $resultString
-     *
-     * @dataProvider getSubstituteValuesDataProvider
-     */
+    #[DataProvider('getSubstituteValuesDataProvider')]
     public function testSubstituteValuesSuccess(
         array $substitutionValues,
         string $initialString,
@@ -37,7 +32,7 @@ class ArrayManagerTest extends TestCase
         self::assertSame($resultString, $result);
     }
 
-    public function getSubstituteValuesDataProvider(): array
+    public static function getSubstituteValuesDataProvider(): array
     {
         return [
             [

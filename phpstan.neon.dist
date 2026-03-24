@@ -3,14 +3,5 @@ parameters:
         - src
     level: max
     checkExplicitMixed: false
-    ignoreErrors:
-        -
-            message: '#Parameter \#1 \$json of function json_decode expects string, string\|false given.*#'
-            count: 3
-            path: ./src/Context/ApiContext.php
-        -
-            message: '#Parameter \#3 \$actualJSON of method BehatApiContext\\Context\\ApiContext::compareStructureResponse\(\) expects string, string\|false given.*#'
-            count: 1
-            path: ./src/Context/ApiContext.php
-        -
-            identifier: missingType.iterableValue
+    # Aligns Symfony Config generics with runtime checks (e.g. ArrayNodeDefinition) across Symfony versions.
+    treatPhpDocTypesAsCertain: false
