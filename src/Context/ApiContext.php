@@ -79,7 +79,11 @@ class ApiContext implements Context
     }
 
     /**
-     * @Given the :headerName request header contains :value
+     * Sets a request header. Header name and value must be double-quoted so names like
+     * Content-Type and values like application/json match reliably (Turnip placeholders do not
+     * capture hyphens or slashes in unquoted tokens).
+     *
+     * @Given #^the "(?P<header>[^"]+)" request header contains "(?P<value>[^"]*)"$#
      */
     public function theRequestHeaderContains(string $header, string $value): void
     {
@@ -92,13 +96,24 @@ class ApiContext implements Context
     }
 
     /**
-     * @Given the :headerName request header contains multiline value:
+     * @Given #^the "(?P<header>[^"]+)" request header contains multiline value:$#
      */
     public function theRequestHeaderContainsMultiline(string $header, PyStringNode $params): void
     {
         $processedParams = $this->stringManager->substituteValues($this->savedValues, trim($params->getRaw()));
 
         $this->headers[$header] = $processedParams;
+    }
+
+    /**
+     * Sets Content-Type to application/json so POST, PUT, and PATCH requests JSON-encode
+     * requestParams in iSendRequestToRoute().
+     *
+     * @Given the request JSON content type is used
+     */
+    public function theRequestJsonContentTypeIsUsed(): void
+    {
+        $this->headers['Content-Type'] = 'application/json';
     }
 
     /**
@@ -131,6 +146,10 @@ class ApiContext implements Context
     }
 
     /**
+     * For POST, PUT, and PATCH, the body is JSON-encoded when Content-Type contains
+     * application/json (set via a quoted header step or Given the request JSON content type is used).
+     * Otherwise parameters are sent as form fields.
+     *
      * @When I send :method request to :route route
      */
     public function iSendRequestToRoute(
@@ -338,7 +357,7 @@ class ApiContext implements Context
     }
 
     /**
-     * @Then the :headerName response headers contains :headerValue
+     * @Then #^the "(?P<headerName>[^"]+)" response headers contains "(?P<headerValue>[^"]*)"$#
      */
     public function theResponseHeadersContains(string $headerName, string $headerValue): void
     {
@@ -346,7 +365,7 @@ class ApiContext implements Context
     }
 
     /**
-     * @And the :headerName response headers contains :headerValue
+     * @And #^the "(?P<headerName>[^"]+)" response headers contains "(?P<headerValue>[^"]*)"$#
      */
     public function theAndResponseHeadersContains(string $headerName, string $headerValue): void
     {

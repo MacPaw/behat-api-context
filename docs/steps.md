@@ -3,8 +3,9 @@
 ## Table of Contents
 
 * [Introduction](#introduction)
-* [🧪Step: `Given the ":headerName" request header contains ":value"`](#step-given-the-headername-request-header-contains-value)
-* [🧪Step: `Given the ":headerName" request header contains multiline value`](#step-given-the-headername-request-header-contains-multiline-value)
+* [🧪Step: `Given the "…" request header contains "…"`](#step-given-the--request-header-contains-)
+* [🧪Step: `Given the "…" request header contains multiline value`](#step-given-the--request-header-contains-multiline-value)
+* [🧪Step: `Given the request JSON content type is used`](#step-given-the-request-json-content-type-is-used)
 * [🧪Step: `Given the request ip is ":ip"`](#step-given-the-request-ip-is-ip)
 * [🧪Step: `Given the request contains params`](#step-given-the-request-contains-params)
 * [🧪Step: `When I send ":method" request to ":route" route`](#step-when-i-send-method-request-to-route-route)
@@ -14,7 +15,7 @@
 * [🧪Step: `Then response should be JSON`](#step-then-response-should-be-json)
 * [🧪Step: `When I save ":paramPath" param from json response as ":valueKey"`](#step-when-i-save-parampath-param-from-json-response-as-valuekey)
 * [🧪Step: `Then response should be JSON with variable fields ":variableFields"`](#step-then-response-should-be-json-with-variable-fields-variablefields)
-* [🧪Step: `Then the ":headerName" response headers contains ":headerValue"`](#step-then-the-headername-response-headers-contains-headervalue)
+* [🧪Step: `Then the "…" response headers contains "…"`](#step-then-the--response-headers-contains-)
 * [📝Notes](#-notes)
 
 ---
@@ -25,19 +26,22 @@ This document describes the Behat step definitions used in the `ApiContext` clas
 
 ---
 
-### 🧪Step: `Given the ":headerName" request header contains ":value"`
+### 🧪Step: `Given the "…" request header contains "…"`
 
 Set or replace the specified HTTP request header with the given value. Supports variable substitutions from saved context variables.
 
+The header name and value **must be double-quoted** in Gherkin. This avoids Turnip placeholder limits (unquoted tokens do not include `-` or `/`, so values like `application/json` and names like `Content-Type` would not match).
+
 ```gherkin
 Given the "Authorization" request header contains "Bearer abc123"
+Given the "Content-Type" request header contains "application/json"
 ```
 
 ---
 
-### 🧪Step: `Given the ":headerName" request header contains multiline value`
+### 🧪Step: `Given the "…" request header contains multiline value`
 
-Set or replace the specified HTTP request header with a multiline value block.
+Set or replace the specified HTTP request header with a multiline value block. The header name must be double-quoted (same rules as the single-line header step).
 
 ```gherkin
 Given the "Authorization" request header contains multiline value:
@@ -46,6 +50,16 @@ Given the "Authorization" request header contains multiline value:
   {{token}}
   UserId={{user_id}}
   """
+```
+
+---
+
+### 🧪Step: `Given the request JSON content type is used`
+
+Equivalent to `Given the "Content-Type" request header contains "application/json"`. Use this so POST, PUT, and PATCH requests JSON-encode the payload from `Given the request contains params` (see the send step below).
+
+```gherkin
+Given the request JSON content type is used
 ```
 
 ---
@@ -81,6 +95,8 @@ Given the request contains params:
 
 Sends an HTTP request with the specified method (`GET`, `POST`, `PUT`, `PATCH`) to the Symfony route named `:route`. Uses previously configured headers and parameters.
 
+For **POST**, **PUT**, and **PATCH**, the body is JSON-encoded when `Content-Type` contains `application/json` (set with the quoted header step or `Given the request JSON content type is used`). Otherwise parameters are sent as form fields.
+
 ```gherkin
 When I send "POST" request to "api_login" route
 ```
@@ -104,12 +120,7 @@ Asserts that the response body contains valid, non-empty JSON.
 ```gherkin
 Then response is JSON
 ```
-    {
-        "name": "status",
-        "result": true,
-        "message": "up",
-        "params": []
-    }
+
 ---
 
 ### 🧪Step: `Then response should be empty`
@@ -180,9 +191,9 @@ This allows flexibility in matching dynamic values while still validating the st
 
 ---
 
-### 🧪Step: `Then the ":headerName" response headers contains ":headerValue"`
+### 🧪Step: `Then the "…" response headers contains "…"`
 
-Asserts that the response contains the specified header with a value that includes the given substring.
+Asserts that the response contains the specified header with a value that includes the given substring. The header name and expected fragment **must be double-quoted** (same reason as request header steps).
 
 ```gherkin
 Then the "Content-Type" response headers contains "application/json"
@@ -191,6 +202,7 @@ Then the "Content-Type" response headers contains "application/json"
 ---
 
 ### 📝 Notes
+- ⚠️ **Breaking change (header steps):** Unquoted header names and values are no longer accepted for the request and response header steps; use double quotes (or `Given the request JSON content type is used` for JSON APIs).
 - ✅ Variable substitutions ({{variable}}) are supported in headers and body.
 - ✅ PHP expressions (<time()>, <uniqid()>, etc.) are dynamically evaluated.
 - ✅ Saved values can be reused across steps for chaining and correlation.

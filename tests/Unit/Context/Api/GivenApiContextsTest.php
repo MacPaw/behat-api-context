@@ -46,6 +46,25 @@ final class GivenApiContextsTest extends ApiContextTestCase
         $headersProp->setAccessible(false);
     }
 
+    /**
+     * @throws ReflectionException
+     */
+    public function testGivenJsonContentTypeStep(): void
+    {
+        $reflectionClass = new ReflectionClass($this->apiContext);
+        $headersProp = $reflectionClass->getProperty('headers');
+        $headersProp->setAccessible(true);
+
+        $this->assertEmpty($headersProp->getValue($this->apiContext));
+
+        $this->apiContext->theRequestJsonContentTypeIsUsed();
+
+        $headers = $headersProp->getValue($this->apiContext);
+        $this->assertSame('application/json', $headers['Content-Type'] ?? null);
+
+        $headersProp->setAccessible(false);
+    }
+
     public function testGivenIps(): void
     {
         $reflectionClass = new ReflectionClass($this->apiContext);
