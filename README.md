@@ -1,5 +1,7 @@
 # Behat Api Context Bundle
 
+![Behat API Context](.github/header.png)
+
 |  Version  |                        Build Status                       |                               Code Coverage                              |   Latest Release  |
 | :-------: | :-------------------------------------------------------: | :----------------------------------------------------------------------: | :---------------: |
 |  `master` |  [![CI][master Build Status Image]][master Build Status]  |  [![Coverage Status][master Code Coverage Image]][master Code Coverage]  | ![Latest Release] |
